@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:gyawun/ytmusic/helpers.dart';
 import 'package:gyawun/ytmusic/modals/yt_config.dart';
 import 'package:http/http.dart';
@@ -80,52 +81,72 @@ class YTClient {
     String url,
     Map<String, String>? headers,
   ) async {
-    final Uri uri = Uri.parse(url);
-    final Response response = await get(uri, headers: headers);
-    return response;
+    try {
+      final Uri uri = Uri.parse(url);
+      final Response response = await get(uri, headers: headers);
+      return response;
+    } catch (e) {
+      debugPrint("Exception in YTClient::sendGetReques: $e");
+      return Response.bytes([], 503);
+    }
   }
 
   static Future<Response> _sendGetRequest(
     String url,
     Map<String, String>? headers,
   ) async {
-    final Uri uri = Uri.parse(url);
-    final Response response = await get(uri, headers: headers);
-    return response;
+    try {
+      final Uri uri = Uri.parse(url);
+      final Response response = await get(uri, headers: headers);
+      return response;
+    } catch (e) {
+      debugPrint("Exception in YTClient::_sendGetRequest: $e");
+      return Response.bytes([], 503);
+    }
   }
 
   Future<Response> addPlayingStats(String videoId, Duration time) async {
-    final Uri uri = Uri.parse(
-        'https://music.youtube.com/api/stats/watchtime?ns=yt&ver=2&c=WEB_REMIX&cmt=${(time.inMilliseconds / 1000)}&docid=$videoId');
-    final Response response = await get(uri, headers: headers);
-    return response;
+    try {
+      final Uri uri = Uri.parse(
+          'https://music.youtube.com/api/stats/watchtime?ns=yt&ver=2&c=WEB_REMIX&cmt=${(time.inMilliseconds / 1000)}&docid=$videoId');
+      final Response response = await get(uri, headers: headers);
+      return response;
+    } catch (e) {
+      debugPrint("Exception in YTClient::addPlayingStats: $e");
+      return Response.bytes([], 503);
+    }
   }
 
   Future<Map> sendRequest(String endpoint, Map<String, dynamic> body,
       {Map<String, String>? headers, String additionalParams = ''}) async {
     //
-    body = {...body, ...context};
+    try {
+      body = {...body, ...context};
 
-    this.headers.addAll(headers ?? {});
+      this.headers.addAll(headers ?? {});
 
-    if (config?.visitorData == null || config!.visitorData.isEmpty) {
-      await resetVisitorId();
-    }
-    if (this.headers['X-Goog-Visitor-Id'] == null &&
-        config?.visitorData != null) {
-      this.headers['X-Goog-Visitor-Id'] = config!.visitorData;
-    }
-    final Uri uri = Uri.parse(httpsYtmDomain +
-        baseApiEndpoint +
-        endpoint +
-        ytmParams +
-        additionalParams);
-    final response =
-        await post(uri, headers: this.headers, body: jsonEncode(body));
+      if (config?.visitorData == null || config!.visitorData.isEmpty) {
+        await resetVisitorId();
+      }
+      if (this.headers['X-Goog-Visitor-Id'] == null &&
+          config?.visitorData != null) {
+        this.headers['X-Goog-Visitor-Id'] = config!.visitorData;
+      }
+      final Uri uri = Uri.parse(httpsYtmDomain +
+          baseApiEndpoint +
+          endpoint +
+          ytmParams +
+          additionalParams);
+      final response =
+          await post(uri, headers: this.headers, body: jsonEncode(body));
 
-    if (response.statusCode == 200) {
-      return json.decode(response.body) as Map;
-    } else {
+      if (response.statusCode == 200) {
+        return json.decode(response.body) as Map;
+      } else {
+        return {};
+      }
+    } catch (e) {
+      debugPrint("Exception in YTClient::sendRequest: $e");
       return {};
     }
   }
