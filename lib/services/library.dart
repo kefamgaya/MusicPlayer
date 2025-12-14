@@ -22,9 +22,9 @@ class LibraryService extends ChangeNotifier {
 
   Future<String> createPlaylist(String title, {Map? item}) async {
     if (title.trim().isEmpty) {
-      "Playlist name can't be empty";
+      return "Playlist name can't be empty";
     } else if (_box.get(title.toLowerCase()) != null) {
-      "Playlist is already created";
+      return "Playlist is already created";
     }
     await _box.put(
       title.toLowerCase(),
