@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'package:collection/collection.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -18,15 +19,53 @@ YoutubeExplode ytExplode = YoutubeExplode();
 class DownloadManager {
   Client client = Client();
   ValueNotifier<List<Map>> downloads = ValueNotifier([]);
+  ValueNotifier<Map<String, Map>> downloaded = ValueNotifier({});
+  static const String songsPlaylistId = 'songs';
   final int maxConcurrentDownloads = 3; // Limit concurrent downloads
   int _activeDownloads = 0;
   final Queue<Map> _downloadQueue = Queue<Map>(); // Queue for pending downloads
 
   DownloadManager() {
-    downloads.value = _box.values.toList().cast<Map>();
+    _refreshData();
     _box.listenable().addListener(() {
-      downloads.value = _box.values.toList().cast<Map>();
+      _refreshData();
     });
+  }
+
+  void _refreshData() {
+    downloads.value = _box.values.toList().cast<Map>();
+    Map<String, Map> playlists = {};
+    for (Map song in downloads.value) {
+      if (!['DOWNLOADED', 'DELETED'].contains(song['status'])) {
+        continue;
+      }
+      final Map songPlaylists = song["playlists"];
+      for (MapEntry entry in songPlaylists.entries) {
+        String id = entry.key;
+        String title = entry.value;
+        playlists
+            .putIfAbsent(
+                id,
+                () => {
+                      "id": id,
+                      "title": title,
+                      "type": id == songsPlaylistId ? "SONGS" : "ALBUM",
+                      "songs": [],
+                    })['songs']
+            .add({...song});
+        if (playlists[id]!['type'] == "ALBUM" &&
+            playlists[id]!['title'] != song["album"]?["name"]) {
+          playlists[id]!['type'] = "PLAYLIST";
+        }
+      }
+    }
+    for (var playlist in playlists.values) {
+      playlist['songs'].sort((a, b) =>
+          (a['timestamp'] ?? 0).compareTo(b['timestamp'] ?? 0) as int);
+    }
+    if (!DeepCollectionEquality().equals(downloaded.value, playlists)) {
+      downloaded.value = playlists;
+    }
   }
 
   Future<void> downloadSong(Map song) async {
@@ -49,7 +88,7 @@ class DownloadManager {
           .getAudioStream(audioSource, start: start, end: end);
       int total = audioSource.size.totalBytes;
       List<int> received = [];
-      await _box.put(song['videoId'], {
+      await _updateSongMetadata(song['videoId'], {
         ...song,
         'status': 'PROCESSING',
         'progress': 0,
@@ -57,8 +96,7 @@ class DownloadManager {
       stream.listen(
         (data) async {
           received.addAll(data);
-          await _box.put(song['videoId'], {
-            ...song,
+          await _updateSongMetadata(song['videoId'], {
             'status': 'DOWNLOADING',
             'progress': (received.length / total) * 100,
           });
@@ -67,11 +105,11 @@ class DownloadManager {
           if (received.length == total) {
             File? file = await GetIt.I<FileStorage>().saveMusic(received, song);
             if (file != null) {
-              await _box.put(song['videoId'], {
-                ...song,
+              await _updateSongMetadata(song['videoId'], {
                 'status': 'DOWNLOADED',
                 'progress': 100,
                 'path': file.path,
+                'playlists': song['playlists'] ?? {songsPlaylistId: 'Songs'},
                 'timestamp': DateTime.now().millisecondsSinceEpoch
               });
             } else {
@@ -82,14 +120,35 @@ class DownloadManager {
         },
         onError: (err) async {
           await _box.delete(song['videoId']);
-          print(err);
           _downloadNext(); // Trigger next download
         },
       );
     } catch (e) {
-      await _box.delete(song['videoId']); // Handle errors by removing entry
+      await deleteSong(
+        key: song['videoId'],
+        playlistId: song['playlists']?.keys.first ?? songsPlaylistId,
+      );
     } finally {
       _activeDownloads--;
+    }
+  }
+
+  Future<void> _updateSongMetadata(String key, Map newMetadata) async {
+    Map? song = _box.get(key);
+    if (song != null) {
+      if (newMetadata.containsKey('playlists')) {
+        song['playlists'] = {
+          ...song['playlists'] ?? {},
+          ...newMetadata['playlists'] as Map,
+        };
+        newMetadata.remove('playlists');
+      }
+      await _box.put(key, {
+        ...song,
+        ...newMetadata,
+      });
+    } else {
+      await _box.put(key, newMetadata);
     }
   }
 
@@ -100,17 +159,29 @@ class DownloadManager {
     }
   }
 
-  Future<String> deleteSong(String key, String path) async {
-    await _box.delete(key);
-    await File(path).delete();
+  Future<String> deleteSong({
+    required String key,
+    String playlistId = songsPlaylistId,
+    String? path,
+  }) async {
+    Map? song = _box.get(key);
+    if (song != null && song['playlists'].keys.contains(playlistId)) {
+      song['playlists'].remove(playlistId);
+      if (song['playlists'].isNotEmpty) {
+        await _box.put(key, song);
+      } else {
+        await _box.delete(key);
+        if (path != null) await File(path).delete();
+      }
+    }
     return 'Song deleted successfully.';
   }
 
-  updateStatus(String key, String status) {
+  Future<void> updateStatus(String key, String status) async {
     Map? song = _box.get(key);
     if (song != null) {
       song['status'] = status;
-      _box.put(key, song);
+      await _box.put(key, song);
     }
   }
 
@@ -122,7 +193,12 @@ class DownloadManager {
                 .getNextSongList(playlistId: playlist['playlistId'])
             : await GetIt.I<YTMusic>().getPlaylistSongs(playlist['playlistId']);
     for (Map song in songs) {
-      await downloadSong(song); // Queue each song download
+      await downloadSong({
+        ...song,
+        'playlists': {
+          playlist['playlistId']: playlist['title'],
+        },
+      }); // Queue each song download
     }
   }
 
