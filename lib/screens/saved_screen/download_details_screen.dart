@@ -67,18 +67,13 @@ class _DownloadDetailsScreenState extends State<DownloadDetailsScreen> {
         builder: (context, allPlaylists, child) {
           final Map<String, Map> playlists = Map.from(allPlaylists);
           Map playlist = playlists[widget.playlistId] ?? {};
-          return playlist.isEmpty
-              ? const AdaptiveScaffold(
-                  body: Center(
-                    child: Text('Not available'),
-                  ),
-                )
-              : AdaptiveScaffold(
-                  appBar: AdaptiveAppBar(
-                    title: Text(playlist['title']),
-                    centerTitle: true,
-                  ),
-                  body: Center(
+          return AdaptiveScaffold(
+            appBar: AdaptiveAppBar(
+              title: playlist.isNotEmpty ? Text(playlist['title']) : null,
+              centerTitle: true,
+            ),
+            body: playlist.isNotEmpty
+                ? Center(
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       constraints: const BoxConstraints(maxWidth: 1000),
@@ -131,8 +126,16 @@ class _DownloadDetailsScreenState extends State<DownloadDetailsScreen> {
                         ],
                       ),
                     ),
+                  )
+                : Center(
+                    child: Text(
+                      'Playlist not available',
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
-                );
+          );
         });
   }
 }
