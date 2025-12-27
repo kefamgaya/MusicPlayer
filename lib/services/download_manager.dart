@@ -69,6 +69,29 @@ class DownloadManager {
   }
 
   Future<void> downloadSong(Map song) async {
+    final Map? downloadSong = _box.get(song['videoId']);
+    if (downloadSong != null) {
+      final String? path = downloadSong['path'];
+      if (path != null) {
+        final file = File(path);
+        final exists = await file.exists();
+        if (exists) {
+          // Song already downloaded, just update metadata
+          await _updateSongMetadata(song['videoId'], {
+            ...song,
+            'status': 'DOWNLOADED',
+            'progress': 100,
+            'path': file.path,
+            'playlists': song['playlists'] ?? {songsPlaylistId: 'Songs'},
+          });
+          return;
+        }
+      }
+    }
+    await _downloadSong(song);
+  }
+
+  Future<void> _downloadSong(Map song) async {
     if (_activeDownloads >= maxConcurrentDownloads) {
       _downloadQueue.add(song); // Add to queue if limit reached
       return;
@@ -155,7 +178,7 @@ class DownloadManager {
   void _downloadNext() {
     if (_downloadQueue.isNotEmpty &&
         _activeDownloads < maxConcurrentDownloads) {
-      downloadSong(_downloadQueue.removeFirst());
+      _downloadSong(_downloadQueue.removeFirst());
     }
   }
 
