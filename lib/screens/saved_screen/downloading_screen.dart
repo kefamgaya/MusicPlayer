@@ -58,7 +58,11 @@ class DownloadingSongTile extends StatelessWidget {
     double height =
         (song['aspectRatio'] != null ? 50 / song['aspectRatio'] : 50)
             .toDouble();
-
+    final notifier =
+        GetIt.I<DownloadManager>().getProgressNotifier(song['videoId']);
+    if (notifier == null) {
+      return const SizedBox.shrink();
+    }
     return AdaptiveListTile(
       title: Text(song['title'] ?? "", maxLines: 1),
       leading: ClipRRect(
@@ -71,11 +75,14 @@ class DownloadingSongTile extends StatelessWidget {
           fit: BoxFit.cover,
         ),
       ),
-      subtitle: LinearProgressIndicator(
-        value: (song['progress'] ?? 0) / 100,
-        color: Theme.of(context).primaryColor,
-        backgroundColor:
-            Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+      subtitle: ValueListenableBuilder(
+        valueListenable: notifier,
+        builder: (context, progress, child) => LinearProgressIndicator(
+          value: progress,
+          color: Theme.of(context).primaryColor,
+          backgroundColor:
+              Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+        ),
       ),
       trailing: song['status'] == 'DELETED'
           ? IconButton(

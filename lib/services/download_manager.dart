@@ -20,6 +20,7 @@ class DownloadManager {
   Client client = Client();
   ValueNotifier<List<Map>> downloads = ValueNotifier([]);
   ValueNotifier<Map<String, Map>> downloaded = ValueNotifier({});
+  final Map<String, ValueNotifier<double>> _activeDownloadProgress = {};
   static const String songsPlaylistId = 'songs';
   final int maxConcurrentDownloads = 3; // Limit concurrent downloads
   int _activeDownloads = 0;
@@ -68,6 +69,22 @@ class DownloadManager {
     }
   }
 
+  ValueNotifier<double>? getProgressNotifier(String videoId) {
+    return _activeDownloadProgress[videoId];
+  }
+
+  void _startTrackingProgress(String videoId) {
+    _activeDownloadProgress[videoId]?.dispose();
+    _activeDownloadProgress[videoId] = ValueNotifier(0.0);
+  }
+
+  void _stopTrackingProgress(String videoId) {
+    if (_activeDownloadProgress.containsKey(videoId)) {
+      _activeDownloadProgress[videoId]!.dispose();
+      _activeDownloadProgress.remove(videoId);
+    }
+  }
+
   Future<void> restoreDownloads({List? songs}) async {
     final songsToRestore = songs ?? downloads.value;
     for (var song in songsToRestore) {
@@ -93,7 +110,6 @@ class DownloadManager {
           await _updateSongMetadata(song['videoId'], {
             ...song,
             'status': 'DOWNLOADED',
-            'progress': 100,
             'path': file.path,
             'playlists': song['playlists'] ?? {songsPlaylistId: 'Songs'},
           });
@@ -126,16 +142,14 @@ class DownloadManager {
       List<int> received = [];
       await _updateSongMetadata(song['videoId'], {
         ...song,
-        'status': 'PROCESSING',
-        'progress': 0,
+        'status': 'DOWNLOADING',
       });
+      _startTrackingProgress(song['videoId']);
       stream.listen(
         (data) async {
           received.addAll(data);
-          await _updateSongMetadata(song['videoId'], {
-            'status': 'DOWNLOADING',
-            'progress': (received.length / total) * 100,
-          });
+          _activeDownloadProgress[song['videoId']]?.value =
+              (received.length / total);
         },
         onDone: () async {
           if (received.length == total) {
@@ -143,7 +157,6 @@ class DownloadManager {
             if (file != null) {
               await _updateSongMetadata(song['videoId'], {
                 'status': 'DOWNLOADED',
-                'progress': 100,
                 'path': file.path,
                 'playlists': song['playlists'] ?? {songsPlaylistId: 'Songs'},
                 'timestamp': DateTime.now().millisecondsSinceEpoch
@@ -152,10 +165,15 @@ class DownloadManager {
               await _box.delete(song['videoId']);
             }
           }
+          _stopTrackingProgress(song['videoId']);
           _downloadNext(); // Trigger next download
         },
         onError: (err) async {
-          await _box.delete(song['videoId']);
+          await deleteSong(
+            key: song['videoId'],
+            playlistId: song['playlists']?.keys.first ?? songsPlaylistId,
+          );
+          _stopTrackingProgress(song['videoId']);
           _downloadNext(); // Trigger next download
         },
       );

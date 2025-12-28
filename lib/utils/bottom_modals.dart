@@ -962,8 +962,7 @@ BottomModalLayout _songBottomModal(BuildContext context, Map song) {
               );
             },
           ),
-          if (!['PROCESSING', 'DOWNLOADING', 'DOWNLOADED']
-              .contains(song['status']))
+          if (!['DOWNLOADING', 'DOWNLOADED'].contains(song['status']))
             AdaptiveListTile(
               dense: true,
               title: Text(S.of(context).Download),
