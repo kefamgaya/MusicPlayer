@@ -119,6 +119,12 @@ class DownloadScreen extends StatelessWidget {
                               },
                             );
                           },
+                          onSecondaryTap: () {
+                            Modals.showDownloadDetailsModal(context, playlist);
+                          },
+                          onLongPress: () {
+                            Modals.showDownloadDetailsModal(context, playlist);
+                          },
                         );
                       }),
                     ],

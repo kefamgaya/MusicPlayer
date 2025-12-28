@@ -225,6 +225,19 @@ class MyPlayistHeader extends StatelessWidget {
                     ],
                   ),
                 ),
+              AdaptiveFilledButton(
+                shape: const CircleBorder(),
+                color: greyColor,
+                padding: const EdgeInsets.all(14),
+                onPressed: () {
+                  Modals.showDownloadDetailsModal(context, playlist);
+                },
+                child: Icon(
+                  AdaptiveIcons.more_vertical,
+                  size: 20,
+                  color: context.isDarkMode ? Colors.white : Colors.black,
+                ),
+              )
             ],
           )
         ],

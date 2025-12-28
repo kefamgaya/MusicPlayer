@@ -37,7 +37,7 @@ class PlaylistThumbnail extends StatelessWidget {
                       (playslist.length == 3 && index == 0))
                   ? size
                   : size / 2,
-              width: size / 2,
+              width: playslist.length > 1 ? size / 2 : size,
               fit: BoxFit.cover,
             );
           }).toList(),

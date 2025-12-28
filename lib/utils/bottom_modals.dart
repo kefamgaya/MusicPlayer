@@ -120,6 +120,17 @@ class Modals {
     );
   }
 
+  static void showDownloadDetailsModal(BuildContext context, Map playlist) {
+    showModalBottomSheet(
+      useRootNavigator: false,
+      backgroundColor: Colors.transparent,
+      useSafeArea: true,
+      isScrollControlled: true,
+      context: context,
+      builder: (context) => _downloadDetailsModalBottomModal(context, playlist),
+    );
+  }
+
   static Future showArtistsBottomModal(BuildContext context, List artists,
       {String? leading, bool shouldPop = false}) {
     return showModalBottomSheet(
@@ -1179,6 +1190,80 @@ BottomModalLayout _playlistBottomModal(BuildContext context, Map playlist) {
                 },
               ),
             ),
+        ],
+      ),
+    ),
+  );
+}
+
+BottomModalLayout _downloadDetailsModalBottomModal(
+    BuildContext context, Map playlist) {
+  return BottomModalLayout(
+    title: AdaptiveListTile(
+      contentPadding: EdgeInsets.zero,
+      title:
+          Text(playlist['title'], maxLines: 1, overflow: TextOverflow.ellipsis),
+      leading: (playlist['songs']?.length > 0)
+          ? (playlist['type'] == "ALBUM")
+              ? PlaylistThumbnail(
+                  playslist: [playlist['songs'][0]], size: 50, radius: 8)
+              : PlaylistThumbnail(
+                  playslist: playlist['songs'], size: 50, radius: 8)
+          : Container(
+              height: 50,
+              width: 50,
+              decoration: BoxDecoration(
+                color: greyColor,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                CupertinoIcons.music_note_list,
+                color: context.isDarkMode ? Colors.white : Colors.black,
+              ),
+            ),
+      subtitle: playlist['subtitle'] != null
+          ? Text(playlist['subtitle'],
+              maxLines: 1, overflow: TextOverflow.ellipsis)
+          : null,
+    ),
+    child: SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AdaptiveListTile(
+            dense: true,
+            title: Text(S.of(context).Play_Next),
+            leading: Icon(AdaptiveIcons.playlist_play),
+            onTap: () async {
+              Navigator.pop(context);
+              await GetIt.I<MediaPlayer>().playNext(Map.from(playlist));
+              GetIt.I<MediaPlayer>().player.play();
+            },
+          ),
+          AdaptiveListTile(
+            dense: true,
+            title: Text(S.of(context).Add_To_Queue),
+            leading: Icon(AdaptiveIcons.queue_add),
+            onTap: () async {
+              Navigator.pop(context);
+              await GetIt.I<MediaPlayer>().addToQueue(Map.from(playlist));
+            },
+          ),
+          AdaptiveListTile(
+            dense: true,
+            title: Text("Delete All Songs"),
+            leading: Icon(AdaptiveIcons.delete),
+            onTap: () async {
+              Navigator.pop(context);
+              for (var song in playlist['songs']) {
+                await GetIt.I<DownloadManager>().deleteSong(
+                  key: song['videoId'],
+                  path: song['path'],
+                  playlistId: playlist['id'],
+                );
+              }
+            },
+          ),
         ],
       ),
     ),
