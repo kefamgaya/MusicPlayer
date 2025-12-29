@@ -587,7 +587,8 @@ class NameAndControls extends StatelessWidget {
                               valueListenable: notifier,
                               builder: (context, double progress, child) {
                                 return AdaptiveProgressRing(
-                                  value: item['status'] == 'DOWNLOADING'
+                                  value: item['status'] == 'DOWNLOADING' &&
+                                          progress > 0.0
                                       ? progress
                                       : null,
                                   color: Colors.white,

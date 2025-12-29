@@ -1,13 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gyawun/themes/colors.dart';
 import 'package:gyawun/utils/extensions.dart';
 import 'package:gyawun/utils/playlist_thumbnail.dart';
-import 'package:gyawun/utils/pprint.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../generated/l10n.dart';
 import '../../services/download_manager.dart';

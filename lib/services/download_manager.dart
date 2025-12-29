@@ -23,7 +23,8 @@ class DownloadManager {
   final Map<String, ValueNotifier<double>> _activeDownloadProgress = {};
   static const String songsPlaylistId = 'songs';
   final int maxConcurrentDownloads = 3; // Limit concurrent downloads
-  int _activeDownloads = 0;
+  final Queue<String> _activeDownloads =
+      Queue<String>(); // Currently active downloads
   final Queue<Map> _downloadQueue = Queue<Map>(); // Queue for pending downloads
 
   DownloadManager() {
@@ -92,7 +93,7 @@ class DownloadManager {
         if (song['path'] == null ||
             !(await File(song['path']).exists()) ||
             song['status'] != 'DOWNLOADED') {
-          _downloadSong(song);
+          downloadSong(song);
         }
       }
     }
@@ -101,89 +102,88 @@ class DownloadManager {
   Future<void> downloadSong(Map song) async {
     final Map? downloadSong = _box.get(song['videoId']);
     if (downloadSong != null) {
-      final String? path = downloadSong['path'];
-      if (path != null) {
-        final file = File(path);
-        final exists = await file.exists();
-        if (exists) {
-          // Song already downloaded, just update metadata
-          await _updateSongMetadata(song['videoId'], {
-            ...song,
-            'status': 'DOWNLOADED',
-            'path': file.path,
-            'playlists': song['playlists'] ?? {songsPlaylistId: 'Songs'},
-          });
-          return;
+      if (_activeDownloads.contains(song['videoId'])) {
+        // Already downloading, just update metadata
+        await _updateSongMetadata(song['videoId'], {
+          ...song,
+          'status': downloadSong['status'],
+          'playlists': song['playlists'] ?? {songsPlaylistId: 'Songs'},
+        });
+        _downloadNext();
+        return;
+      } else {
+        final String? path = downloadSong['path'];
+        if (path != null) {
+          final file = File(path);
+          final exists = await file.exists();
+          if (exists) {
+            // Already downloaded, just update metadata
+            await _updateSongMetadata(song['videoId'], {
+              ...song,
+              'status': 'DOWNLOADED',
+              'path': file.path,
+              'playlists': song['playlists'] ?? {songsPlaylistId: 'Songs'},
+            });
+            _downloadNext();
+            return;
+          }
         }
       }
     }
+    if (!_downloadStart(song)) return;
     await _downloadSong(song);
+    _downloadEnd(song);
+    _downloadNext();
   }
 
   Future<void> _downloadSong(Map song) async {
-    if (_activeDownloads >= maxConcurrentDownloads) {
-      _downloadQueue.add(song); // Add to queue if limit reached
-      return;
-    }
-
-    _activeDownloads++;
     try {
-      if (!(await FileStorage.requestPermissions())) return;
+      await _updateSongMetadata(song['videoId'], {
+        ...song,
+        'status': 'DOWNLOADING',
+        'playlists': song['playlists'] ?? {songsPlaylistId: 'Songs'},
+      });
+      _startTrackingProgress(song['videoId']);
+
+      if (!(await FileStorage.requestPermissions())) {
+        throw Exception('Storage permissions not granted.');
+      }
 
       AudioOnlyStreamInfo audioSource = await _getSongInfo(song['videoId'],
           quality:
               GetIt.I<SettingsManager>().downloadQuality.name.toLowerCase());
-      int start = 0;
-      int end = audioSource.size.totalBytes;
 
-      Stream<List<int>> stream = AudioStreamClient()
-          .getAudioStream(audioSource, start: start, end: end);
       int total = audioSource.size.totalBytes;
       List<int> received = [];
-      await _updateSongMetadata(song['videoId'], {
-        ...song,
-        'status': 'DOWNLOADING',
-      });
-      _startTrackingProgress(song['videoId']);
-      stream.listen(
-        (data) async {
-          received.addAll(data);
-          _activeDownloadProgress[song['videoId']]?.value =
-              (received.length / total);
-        },
-        onDone: () async {
-          if (received.length == total) {
-            File? file = await GetIt.I<FileStorage>().saveMusic(received, song);
-            if (file != null) {
-              await _updateSongMetadata(song['videoId'], {
-                'status': 'DOWNLOADED',
-                'path': file.path,
-                'playlists': song['playlists'] ?? {songsPlaylistId: 'Songs'},
-                'timestamp': DateTime.now().millisecondsSinceEpoch
-              });
-            } else {
-              await _box.delete(song['videoId']);
-            }
-          }
-          _stopTrackingProgress(song['videoId']);
-          _downloadNext(); // Trigger next download
-        },
-        onError: (err) async {
-          await deleteSong(
-            key: song['videoId'],
-            playlistId: song['playlists']?.keys.first ?? songsPlaylistId,
-          );
-          _stopTrackingProgress(song['videoId']);
-          _downloadNext(); // Trigger next download
-        },
-      );
+
+      Stream<List<int>> stream =
+          AudioStreamClient().getAudioStream(audioSource, start: 0, end: total);
+
+      await for (var data in stream) {
+        received.addAll(data);
+        _activeDownloadProgress[song['videoId']]?.value =
+            (received.length / total);
+      }
+
+      File? file = await GetIt.I<FileStorage>().saveMusic(received, song);
+      if (file != null) {
+        await _updateSongMetadata(song['videoId'], {
+          'status': 'DOWNLOADED',
+          'path': file.path,
+          'playlists': song['playlists'] ?? {songsPlaylistId: 'Songs'},
+          'timestamp': DateTime.now().millisecondsSinceEpoch
+        });
+      } else {
+        throw Exception("File saving failed");
+      }
+      _stopTrackingProgress(song['videoId']);
     } catch (e) {
+      debugPrint("Errore in _downloadSong: $e");
       await deleteSong(
         key: song['videoId'],
         playlistId: song['playlists']?.keys.first ?? songsPlaylistId,
       );
-    } finally {
-      _activeDownloads--;
+      _stopTrackingProgress(song['videoId']);
     }
   }
 
@@ -206,10 +206,25 @@ class DownloadManager {
     }
   }
 
+  bool _downloadStart(Map song) {
+    if (_activeDownloads.length >= maxConcurrentDownloads) {
+      _downloadQueue.add(song);
+      return false;
+    }
+    _activeDownloads.add(song['videoId']);
+    return true;
+  }
+
+  void _downloadEnd(Map song) {
+    if (_activeDownloads.isNotEmpty) {
+      _activeDownloads.remove(song['videoId']);
+    }
+  }
+
   void _downloadNext() {
     if (_downloadQueue.isNotEmpty &&
-        _activeDownloads < maxConcurrentDownloads) {
-      _downloadSong(_downloadQueue.removeFirst());
+        _activeDownloads.length < maxConcurrentDownloads) {
+      downloadSong(_downloadQueue.removeFirst());
     }
   }
 
@@ -225,7 +240,9 @@ class DownloadManager {
         await _box.put(key, song);
       } else {
         await _box.delete(key);
-        if (path != null) await File(path).delete();
+        if (path != null && await File(path).exists()) {
+          await File(path).delete();
+        }
       }
     }
     return 'Song deleted successfully.';
@@ -247,7 +264,7 @@ class DownloadManager {
                 .getNextSongList(playlistId: playlist['playlistId'])
             : await GetIt.I<YTMusic>().getPlaylistSongs(playlist['playlistId']);
     for (Map song in songs) {
-      await downloadSong({
+      downloadSong({
         ...song,
         'playlists': {
           playlist['playlistId']: playlist['title'],

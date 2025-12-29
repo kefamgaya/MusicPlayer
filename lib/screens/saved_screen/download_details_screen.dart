@@ -330,8 +330,8 @@ class DownloadedSongTile extends StatelessWidget {
       ),
       trailing: song['status'] == 'DELETED'
           ? IconButton(
-              onPressed: () async {
-                await GetIt.I<DownloadManager>().downloadSong(song);
+              onPressed: () {
+                GetIt.I<DownloadManager>().downloadSong(song);
               },
               icon: const Icon(Icons.refresh))
           : null,
