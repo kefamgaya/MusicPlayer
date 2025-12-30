@@ -1265,7 +1265,6 @@ BottomModalLayout _downloadBottomModal(BuildContext context) {
               if (shouldDelete) {
                 Navigator.pop(context);
                 BottomMessage.showText(context, S.of(context).Deleting_Songs);
-                Modals.showCenterLoadingModal(context);
                 List songs = Hive.box('DOWNLOADS').values.toList();
                 for (var song in songs) {
                   await Hive.box('DOWNLOADS').delete(song['videoId']);
@@ -1278,7 +1277,6 @@ BottomModalLayout _downloadBottomModal(BuildContext context) {
                     }
                   }
                 }
-                Navigator.pop(context);
               }
             },
           ),
