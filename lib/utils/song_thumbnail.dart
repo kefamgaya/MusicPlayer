@@ -43,7 +43,13 @@ class _SongThumbnailState extends State<SongThumbnail> {
   @override
   void didUpdateWidget(covariant SongThumbnail oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.song != oldWidget.song) {
+
+    final oldId = oldWidget.song['videoId'] ?? '';
+    final newId = widget.song['videoId'] ?? '';
+    final oldPath = oldWidget.song['path'] ?? '';
+    final newPath = widget.song['path'] ?? '';
+
+    if (oldId != newId || oldPath != newPath) {
       _lastNotifiedProvider = null;
       _checkLocalThumbnail();
     }
@@ -78,31 +84,35 @@ class _SongThumbnailState extends State<SongThumbnail> {
         if (mounted) widget.onImageReady!(provider);
       });
     }
-    return Image(
-      image: provider,
-      height: widget.height,
-      width: widget.width,
-      fit: widget.fit,
-      filterQuality: widget.filterQuality,
-      gaplessPlayback: true,
+    return RepaintBoundary(
+      child: Image(
+        image: provider,
+        height: widget.height,
+        width: widget.width,
+        fit: widget.fit,
+        filterQuality: widget.filterQuality,
+        gaplessPlayback: true,
+      ),
     );
   }
 
   Widget _buildCachedNetworkImage(List<String> urls, int index) {
-    return CachedNetworkImage(
-      imageUrl: urls[index],
-      height: widget.height,
-      width: widget.width,
-      fit: widget.fit,
-      filterQuality: widget.filterQuality,
-      imageBuilder: (context, provider) => _buildDisplayImage(provider),
-      placeholder: (context, url) => SizedBox(
+    return RepaintBoundary(
+      child: CachedNetworkImage(
+        imageUrl: urls[index],
         height: widget.height,
         width: widget.width,
+        fit: widget.fit,
+        filterQuality: widget.filterQuality,
+        imageBuilder: (context, provider) => _buildDisplayImage(provider),
+        placeholder: (context, url) => SizedBox(
+          height: widget.height,
+          width: widget.width,
+        ),
+        errorWidget: (index + 1 < urls.length)
+            ? (context, url, error) => _buildCachedNetworkImage(urls, index + 1)
+            : widget.errorWidget,
       ),
-      errorWidget: (index + 1 < urls.length)
-          ? (context, url, error) => _buildCachedNetworkImage(urls, index + 1)
-          : widget.errorWidget,
     );
   }
 
