@@ -37,12 +37,17 @@ class DownloadManager {
   }
 
   void _cleanupDownloads() async {
+    final activeIds = _activeDownloads.toSet();
+    final queuedIds = _downloadQueue.map((e) => e['videoId']).toSet();
     for (Map song in downloads.value) {
-      if (['DOWNLOADING'].contains(song['status']) &&
-          !_activeDownloads.contains(song['videoId'])) {
-        await _updateSongMetadata(song['videoId'], {
-          'status': 'DELETED',
-        });
+      final id = song['videoId'];
+      final status = song['status'];
+      final isInvalidDownloading =
+          status == 'DOWNLOADING' && !activeIds.contains(id);
+      final isInvalidQueued = status == 'QUEUED' && !queuedIds.contains(id);
+      if (isInvalidDownloading || isInvalidQueued) {
+        debugPrint("Cleaning up interrupted download: ${song['title']}");
+        await _updateSongMetadata(id, {'status': 'DELETED'});
       }
     }
   }
@@ -96,6 +101,10 @@ class DownloadManager {
     _activeDownloadProgress[videoId] = ValueNotifier(0.0);
   }
 
+  void _updateTrackingProgress(String videoId, double value) {
+    _activeDownloadProgress[videoId]?.value = value;
+  }
+
   void _stopTrackingProgress(String videoId) {
     if (_activeDownloadProgress.containsKey(videoId)) {
       _activeDownloadProgress[videoId]!.dispose();
@@ -107,9 +116,12 @@ class DownloadManager {
     final songsToRestore = songs ?? downloads.value;
     for (var song in songsToRestore) {
       if (_box.get(song['videoId']) != null) {
-        if (song['path'] == null ||
-            !(await File(song['path']).exists()) ||
-            song['status'] != 'DOWNLOADED') {
+        final status = song['status'];
+        final path = song['path'];
+        final isFileMissing = status == 'DOWNLOADED' &&
+            (path == null || !(await File(path).exists()));
+        final isDeleted = status == 'DELETED';
+        if (isDeleted || isFileMissing) {
           downloadSong(song);
         }
       }
@@ -135,7 +147,6 @@ class DownloadManager {
         // Already downloading, just update metadata
         await _updateSongMetadata(song['videoId'], {
           ...song,
-          'status': downloadSong['status'],
         });
         _downloadNext();
         return;
@@ -149,7 +160,6 @@ class DownloadManager {
             await _updateSongMetadata(song['videoId'], {
               ...song,
               'status': 'DOWNLOADED',
-              'path': file.path,
             });
             _downloadNext();
             return;
@@ -158,7 +168,7 @@ class DownloadManager {
       }
     }
     // Execute download process
-    if (!_downloadStart(song)) return;
+    if (!await _downloadStart(song)) return;
     await _downloadSong(song);
     _downloadEnd(song);
     _downloadNext();
@@ -188,8 +198,7 @@ class DownloadManager {
 
       await for (var data in stream) {
         received.add(data);
-        _activeDownloadProgress[song['videoId']]?.value =
-            (received.length / total);
+        _updateTrackingProgress(song['videoId'], received.length / total);
       }
       File? file = await GetIt.I<FileStorage>().saveMusic(
         received.takeBytes(),
@@ -203,12 +212,12 @@ class DownloadManager {
       } else {
         throw Exception("File saving failed");
       }
-      _stopTrackingProgress(song['videoId']);
     } catch (e) {
       debugPrint("Error in _downloadSong: $e");
       await _updateSongMetadata(song['videoId'], {
         'status': 'DELETED',
       });
+    } finally {
       _stopTrackingProgress(song['videoId']);
     }
   }
@@ -238,9 +247,13 @@ class DownloadManager {
     }
   }
 
-  bool _downloadStart(Map song) {
+  Future<bool> _downloadStart(Map song) async {
     if (_activeDownloads.length >= maxConcurrentDownloads) {
       _downloadQueue.add(song);
+      await _updateSongMetadata(song['videoId'], {
+        ...song,
+        'status': 'QUEUED',
+      });
       return false;
     }
     _activeDownloads.add(song['videoId']);

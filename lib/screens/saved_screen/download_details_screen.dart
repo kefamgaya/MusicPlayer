@@ -319,14 +319,21 @@ class DownloadedSongTile extends StatelessWidget {
             ? 'File not found'
             : song['status'] == 'DOWNLOADING'
                 ? 'Downloading'
-                : _buildSubtitle(song),
+                : song['status'] == 'QUEUED'
+                    ? 'Queued'
+                    : _buildSubtitle(song),
         maxLines: 1,
         style: TextStyle(
           color: song['status'] == 'DELETED'
               ? Colors.red
               : song['status'] == 'DOWNLOADING'
                   ? Theme.of(context).colorScheme.primary
-                  : Colors.grey.withAlpha(250),
+                  : song['status'] == 'QUEUED'
+                      ? Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.5)
+                      : Colors.grey.withAlpha(250),
         ),
         overflow: TextOverflow.ellipsis,
       ),
