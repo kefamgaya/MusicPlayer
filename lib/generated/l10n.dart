@@ -982,10 +982,10 @@ class S {
     );
   }
 
-  /// `Are you sure you want to delete all downloaded songs.`
+  /// `Are you sure you want to delete them?`
   String get Confirm_Delete_All_Message {
     return Intl.message(
-      'Are you sure you want to delete all downloaded songs.',
+      'Are you sure you want to delete them?',
       name: 'Confirm_Delete_All_Message',
       desc: '',
       args: [],

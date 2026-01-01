@@ -69,7 +69,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "Confirm": MessageLookupByLibrary.simpleMessage("Confirm"),
     "Confirm_Delete_All_Message": MessageLookupByLibrary.simpleMessage(
-      "Are you sure you want to delete all downloaded songs.",
+      "Are you sure you want to delete them?",
     ),
     "Content": MessageLookupByLibrary.simpleMessage("Content"),
     "Contributors": MessageLookupByLibrary.simpleMessage("Contributors"),

@@ -69,7 +69,11 @@ class _DownloadDetailsScreenState extends State<DownloadDetailsScreen> {
           final List songs = playlist['songs'] ?? [];
           return AdaptiveScaffold(
             appBar: AdaptiveAppBar(
-              title: playlist.isNotEmpty ? Text(playlist['title']) : null,
+              title: playlist.isNotEmpty && playlist['type'] == 'SONGS'
+                  ? Text(S.of(context).Songs)
+                  : playlist.isNotEmpty
+                      ? Text(playlist['title'])
+                      : null,
               centerTitle: true,
             ),
             body: playlist.isNotEmpty

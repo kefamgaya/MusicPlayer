@@ -55,7 +55,9 @@ class DownloadScreen extends StatelessWidget {
                         final playlist = entry.value;
                         return AdaptiveListTile(
                           margin: const EdgeInsets.symmetric(vertical: 4),
-                          title: Text(playlist['title']),
+                          title: playlist['type'] == 'SONGS'
+                              ? Text(S.of(context).Songs)
+                              : Text(playlist['title']),
                           leading: playlist['type'] == "SONGS"
                               ? Container(
                                   height: 50,

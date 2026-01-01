@@ -1358,7 +1358,7 @@ BottomModalLayout _downloadDetailsBottomModal(
             onTap: () async {
               Modals.showConfirmBottomModal(
                 context,
-                message: S.of(context).Remove_Message,
+                message: S.of(context).Confirm_Delete_All_Message,
                 isDanger: true,
               ).then(
                 (bool confirm) async {
