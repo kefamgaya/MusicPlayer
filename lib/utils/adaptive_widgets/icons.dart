@@ -12,6 +12,8 @@ abstract final class AdaptiveIcons {
   static IconData chevron_down = CupertinoIcons.chevron_down;
   static IconData search = Icons.search;
   static IconData download = Icons.download;
+  static IconData downloading = Icons.downloading;
+  static IconData sync = Icons.sync;
   static IconData create = Icons.edit;
   static IconData add = Icons.add;
   static IconData import = Icons.import_export_outlined;
@@ -52,4 +54,5 @@ abstract final class AdaptiveIcons {
   static IconData equalizer = Icons.equalizer;
   static IconData timer = Icons.timer;
   static IconData share = Icons.share;
+  static IconData wifi_off_rounded = Icons.wifi_off_rounded;
 }

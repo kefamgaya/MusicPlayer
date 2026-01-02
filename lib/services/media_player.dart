@@ -336,10 +336,10 @@ class MediaPlayer extends ChangeNotifier {
     await _player.play();
   }
 
-  Future<void> playNext(Map<String, dynamic> song) async {
+  Future<void> playNext(Map<String, dynamic> mediaItem) async {
     // Case 1: A single video/song
-    if (song['videoId'] != null) {
-      final audioSource = await _getAudioSource(song);
+    if (mediaItem['videoId'] != null) {
+      final audioSource = await _getAudioSource(mediaItem);
 
       // Determine insertion position
       final currentIndex = _player.currentIndex ?? -1;
@@ -354,10 +354,17 @@ class MediaPlayer extends ChangeNotifier {
         await _player.setAudioSource(audioSource);
       }
 
-      // Case 2: Playlist
-    } else if (song['playlistId'] != null) {
-      final songs =
-          await GetIt.I<YTMusic>().getPlaylistSongs(song['playlistId']);
+      // Case 2: Custom or Downloaded Playlist
+    } else if (mediaItem['songs'] != null) {
+      List songs = mediaItem['songs'];
+      await _addSongListToQueue(songs, isNext: true);
+
+      // Case 3: Online Playlist
+    } else if (mediaItem['playlistId'] != null) {
+      List songs = mediaItem['type'] == 'ARTIST'
+          ? await GetIt.I<YTMusic>()
+              .getNextSongList(playlistId: mediaItem['playlistId'])
+          : await GetIt.I<YTMusic>().getPlaylistSongs(mediaItem['playlistId']);
       await _addSongListToQueue(songs, isNext: true);
     }
   }
@@ -377,12 +384,22 @@ class MediaPlayer extends ChangeNotifier {
     if (!_player.playing) await _player.play();
   }
 
-  Future<void> addToQueue(Map<String, dynamic> song) async {
-    if (song['videoId'] != null) {
-      await _player.addAudioSource(await _getAudioSource(song));
-    } else if (song['playlistId'] != null) {
-      List songs =
-          await GetIt.I<YTMusic>().getPlaylistSongs(song['playlistId']);
+  Future<void> addToQueue(Map<String, dynamic> mediaItem) async {
+    // Case 1: A single video/song
+    if (mediaItem['videoId'] != null) {
+      await _player.addAudioSource(await _getAudioSource(mediaItem));
+
+      // Case 2: Custom or Downloaded Playlist
+    } else if (mediaItem['songs'] != null) {
+      List songs = mediaItem['songs'];
+      await _addSongListToQueue(songs, isNext: false);
+
+      // Case 3: Online Playlist
+    } else if (mediaItem['playlistId'] != null) {
+      List songs = mediaItem['type'] == 'ARTIST'
+          ? await GetIt.I<YTMusic>()
+              .getNextSongList(playlistId: mediaItem['playlistId'])
+          : await GetIt.I<YTMusic>().getPlaylistSongs(mediaItem['playlistId']);
       await _addSongListToQueue(songs, isNext: false);
     }
   }
@@ -395,7 +412,7 @@ class MediaPlayer extends ChangeNotifier {
     }
     List songs = await GetIt.I<YTMusic>().getNextSongList(
         videoId: song['videoId'],
-        playlistId: song['playlistId'],
+        playlistId: song['playlistRadioId'],
         radio: radio,
         shuffle: shuffle);
     if (songs.isNotEmpty) songs.removeAt(0);
