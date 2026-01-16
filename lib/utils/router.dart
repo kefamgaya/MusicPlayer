@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gyawun/features/browse/browse_page.dart';
+import 'package:gyawun/features/chip/chip_page.dart';
 import 'package:gyawun/features/home/home_page.dart';
 import 'package:gyawun/screens/saved_screen/download_details_screen.dart';
 import 'package:gyawun/screens/saved_screen/download_screen.dart';
@@ -12,7 +13,6 @@ import 'package:gyawun/screens/saved_screen/history_screen.dart';
 import 'package:gyawun/screens/saved_screen/playlist_details_screen.dart';
 import 'package:gyawun/screens/settings_screen/privacy/privacy_screen.dart';
 
-import '../screens/home_screen/chip_screen.dart';
 import '../screens/home_screen/search_screen/search_screen.dart';
 import '../screens/saved_screen/saved_screen.dart';
 import '../screens/main_screen/main_screen.dart';
@@ -80,7 +80,7 @@ List<StatefulShellBranch> branches = [
               path: 'chip',
               builder: (context, state) {
                 Map<String, dynamic> args = state.extra as Map<String, dynamic>;
-                return ChipScreen(
+                return ChipPage(
                     title: args['title'] ?? '',
                     endpoint: args['endpoint'] ?? {});
               },

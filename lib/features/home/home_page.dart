@@ -144,8 +144,6 @@ class _HomePageState extends State<_HomePage> {
           child: BlocBuilder<HomeCubit, HomeState>(
             builder: (context, state) {
               switch (state) {
-                case HomeInitial():
-                  return SizedBox.shrink();
                 case HomeLoading():
                   return Center(
                     child: LoadingIndicatorM3E(),

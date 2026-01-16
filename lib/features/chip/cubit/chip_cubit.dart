@@ -2,59 +2,57 @@ import 'package:bloc/bloc.dart';
 import 'package:gyawun/ytmusic/ytmusic.dart';
 import 'package:meta/meta.dart';
 
-part 'home_state.dart';
+part 'chip_state.dart';
 
-class HomeCubit extends Cubit<HomeState> {
+class ChipCubit extends Cubit<ChipState> {
   final YTMusic _ytMusic;
-  HomeCubit(this._ytMusic) : super(HomeLoading());
+  final Map<String, dynamic> endpoint;
+  ChipCubit(this._ytMusic, {required this.endpoint}) : super(ChipLoading());
 
   Future<void> fetch() async {
-    emit(const HomeLoading());
+    emit(const ChipLoading());
     try {
-      final feed = await _ytMusic.browse();
-      emit(HomeSuccess(
-        chips: feed['chips'] ?? [],
+      final feed = await _ytMusic.browse(body: endpoint);
+      emit(ChipSuccess(
         sections: feed['sections'],
         continuation: feed['continuation'],
         loadingMore: false,
       ));
     } catch (e, st) {
-      emit(HomeError(e.toString(), st.toString()));
+      emit(ChipError(e.toString(), st.toString()));
     }
   }
 
   Future<void> refresh() async {
     try {
       final feed = await _ytMusic.browse();
-      emit(HomeSuccess(
-        chips: feed['chips'] ?? [],
+      emit(ChipSuccess(
         sections: feed['sections'],
         continuation: feed['continuation'],
         loadingMore: false,
       ));
     } catch (e, st) {
-      emit(HomeError(e.toString(), st.toString()));
+      emit(ChipError(e.toString(), st.toString()));
     }
   }
 
   Future<void> fetchNext() async {
     final current = state;
-    if (current is! HomeSuccess) return;
+    if (current is! ChipSuccess) return;
     if (current.loadingMore || current.continuation == null) return;
     emit(current.copyWith(loadingMore: true));
     try {
       final feed = await _ytMusic.browseContinuation(
           additionalParams: current.continuation!);
       emit(
-        HomeSuccess(
-          chips: current.chips,
+        ChipSuccess(
           sections: [...current.sections, ...feed['sections']],
           continuation: feed['continuation'],
           loadingMore: false,
         ),
       );
     } catch (e, st) {
-      emit(HomeError(e.toString(), st.toString()));
+      emit(ChipError(e.toString(), st.toString()));
     }
   }
 }
