@@ -5,18 +5,18 @@ import 'package:go_router/go_router.dart';
 import 'package:gyawun/features/browse/browse_page.dart';
 import 'package:gyawun/features/chip/chip_page.dart';
 import 'package:gyawun/features/home/home_page.dart';
+import 'package:gyawun/features/library/downloads/downloading/downloading_page.dart';
+import 'package:gyawun/features/library/downloads/downloads_page.dart';
+import 'package:gyawun/features/library/downloads/playlist/download_playlist_page.dart';
+import 'package:gyawun/features/library/favourites/favourites_page.dart';
+import 'package:gyawun/features/library/history/history_page.dart';
+import 'package:gyawun/features/library/library_page.dart';
+import 'package:gyawun/features/library/playlist/playlist_details_page.dart';
 import 'package:gyawun/features/player/player_page.dart';
 import 'package:gyawun/features/search/search_page.dart';
 import 'package:gyawun/features/shell/app_shell.dart';
-import 'package:gyawun/screens/saved_screen/download_details_screen.dart';
-import 'package:gyawun/screens/saved_screen/download_screen.dart';
-import 'package:gyawun/screens/saved_screen/downloading_screen.dart';
-import 'package:gyawun/screens/saved_screen/favourite_details_screen.dart';
-import 'package:gyawun/screens/saved_screen/history_screen.dart';
-import 'package:gyawun/screens/saved_screen/playlist_details_screen.dart';
 import 'package:gyawun/screens/settings_screen/privacy/privacy_screen.dart';
 
-import '../screens/saved_screen/saved_screen.dart';
 import '../screens/settings_screen/about/about_screen.dart';
 import '../screens/settings_screen/appearence/appearence_screen.dart';
 import '../screens/settings_screen/storage/backup_storage_screen.dart';
@@ -111,40 +111,40 @@ List<StatefulShellBranch> branches = [
   StatefulShellBranch(routes: [
     GoRoute(
       path: '/saved',
-      builder: (context, state) => const SavedScreen(),
+      builder: (context, state) => const LibraryPage(),
       routes: [
         GoRoute(
-          path: 'favourite_details',
-          builder: (context, state) => const FavouriteDetailsScreen(),
+          path: 'favourites_page',
+          builder: (context, state) => const FavouritesPage(),
         ),
         GoRoute(
-          path: 'downloads',
-          builder: (context, state) => const DownloadScreen(),
+          path: 'downloads_page',
+          builder: (context, state) => const DownloadsPage(),
           routes: [
             GoRoute(
-              path: 'download_details',
+              path: 'download_playlist_page',
               builder: (context, state) {
                 final args = state.extra as Map<String, dynamic>;
-                return DownloadDetailsScreen(
+                return DownloadPlaylistPage(
                   playlistId: args['playlistId'] as String,
                 );
               },
             ),
             GoRoute(
-              path: 'downloading',
-              builder: (context, state) => const DownloadingScreen(),
+              path: 'downloading_page',
+              builder: (context, state) => const DownloadingPage(),
             ),
           ],
         ),
         GoRoute(
-          path: 'history',
-          builder: (context, state) => const HistoryScreen(),
+          path: 'history_page',
+          builder: (context, state) => const HistoryPage(),
         ),
         GoRoute(
           path: 'playlist_details',
           builder: (context, state) {
             final args = state.extra as Map<String, dynamic>;
-            return PlaylistDetailsScreen(
+            return PlaylistDetailsPage(
               playlistkey: args['playlistkey'] as String,
             );
           },

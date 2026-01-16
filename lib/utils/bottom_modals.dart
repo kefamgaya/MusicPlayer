@@ -1237,7 +1237,7 @@ BottomModalLayout _downloadBottomModal(BuildContext context) {
             title: Text(S.of(context).Downloading),
             leading: Icon(AdaptiveIcons.downloading),
             onTap: () async {
-              context.push('/saved/downloads/downloading');
+              context.push('/saved/downloads_page/downloading_page');
               Navigator.pop(context);
             },
           ),

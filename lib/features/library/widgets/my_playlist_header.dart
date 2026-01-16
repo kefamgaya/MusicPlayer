@@ -5,90 +5,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:flutter_swipe_action_cell/core/cell.dart';
 import 'package:get_it/get_it.dart';
-import 'package:provider/provider.dart';
-
-import '../../generated/l10n.dart';
-import '../../services/bottom_message.dart';
-import '../../services/library.dart';
-import '../../services/media_player.dart';
-import '../../themes/colors.dart';
-import '../../utils/adaptive_widgets/adaptive_widgets.dart';
-import '../../utils/bottom_modals.dart';
-import '../../core/widgets/section_item.dart';
-import '../../utils/extensions.dart';
-
-class PlaylistDetailsScreen extends StatelessWidget {
-  const PlaylistDetailsScreen({required this.playlistkey, super.key});
-  final String playlistkey;
-
-  @override
-  Widget build(BuildContext context) {
-    Map? playlist = context.watch<LibraryService>().getPlaylist(playlistkey);
-    return playlist == null
-        ? const AdaptiveScaffold(
-            body: Center(
-              child: Text('Not available'),
-            ),
-          )
-        : AdaptiveScaffold(
-            appBar: AdaptiveAppBar(
-              title: Text(playlist['title']),
-              centerTitle: true,
-            ),
-            body: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                constraints: const BoxConstraints(maxWidth: 1000),
-                child: ListView(
-                  children: [
-                    MyPlayistHeader(playlist: playlist),
-                    const SizedBox(height: 8),
-                    ListView(
-                      shrinkWrap: true,
-                      primary: false,
-                      children: [
-                        ...playlist['songs'].map<Widget>((song) {
-                          return SwipeActionCell(
-                            backgroundColor: Colors.transparent,
-                            key: ObjectKey(song['videoId']),
-                            trailingActions: <SwipeAction>[
-                              SwipeAction(
-                                  title: S.of(context).Remove,
-                                  onTap: (CompletionHandler handler) async {
-                                    Modals.showConfirmBottomModal(
-                                      context,
-                                      message: S.of(context).Remove_Message,
-                                      isDanger: true,
-                                    ).then((bool confirm) {
-                                      if (confirm) {
-                                        context
-                                            .read<LibraryService>()
-                                            .removeFromPlaylist(
-                                                item: song,
-                                                playlistId: playlistkey)
-                                            .then((message) =>
-                                                BottomMessage.showText(
-                                                    context, message));
-                                      }
-                                    });
-                                  },
-                                  color: Colors.red),
-                            ],
-                            child:
-                                SongTile(song: song, playlistId: playlistkey),
-                          );
-                        }).toList()
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ),
-          );
-  }
-}
+import 'package:gyawun/generated/l10n.dart';
+import 'package:gyawun/services/media_player.dart';
+import 'package:gyawun/themes/colors.dart';
+import 'package:gyawun/utils/adaptive_widgets/buttons.dart';
+import 'package:gyawun/utils/extensions.dart';
 
 class MyPlayistHeader extends StatelessWidget {
   const MyPlayistHeader({
@@ -183,7 +105,7 @@ class MyPlayistHeader extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Icon(
-                        AdaptiveIcons.play,
+                        Icons.play_arrow,
                         color: context.isDarkMode ? Colors.black : Colors.white,
                         size: 24,
                       ),
@@ -203,7 +125,7 @@ class MyPlayistHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.maxFinite,
-      child: Adaptivecard(
+      child: Card(
         child: LayoutBuilder(builder: (context, constraints) {
           return constraints.maxWidth > 600
               ? Row(
