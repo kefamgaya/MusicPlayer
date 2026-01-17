@@ -1,16 +1,13 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:isolate';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gyawun/services/update_service/update_service.dart';
 import 'package:navigation_rail_m3e/navigation_rail_m3e.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 import '../../generated/l10n.dart';
-import '../../utils/bottom_modals.dart';
-import '../../utils/check_update.dart';
 import 'widgets/bottom_player.dart';
 
 class AppShell extends StatefulWidget {
@@ -41,7 +38,7 @@ class _AppShellState extends State<AppShell> {
       });
     }
 
-    _update();
+    UpdateService.autoCheck(context);
   }
 
   void _handleIntent(SharedMediaFile value) {
@@ -70,20 +67,6 @@ class _AppShellState extends State<AppShell> {
   void dispose() {
     _intentSub.cancel();
     super.dispose();
-  }
-
-  Future<void> _update() async {
-    final deviceInfoPlugin = DeviceInfoPlugin();
-    BaseDeviceInfo deviceInfo = await deviceInfoPlugin.deviceInfo;
-    UpdateInfo? updateInfo = await Isolate.run(() async {
-      return await checkUpdate(deviceInfo: deviceInfo);
-    });
-
-    if (updateInfo != null) {
-      if (mounted) {
-        Modals.showUpdateDialog(context, updateInfo);
-      }
-    }
   }
 
   void _goBranch(int index) {
