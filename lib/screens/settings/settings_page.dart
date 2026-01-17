@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gyawun/services/update_service/update_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../generated/l10n.dart';
 import '../../themes/text_styles.dart';
 import '../../utils/adaptive_widgets/adaptive_widgets.dart';
 import '../../utils/bottom_modals.dart';
-import '../../utils/check_update.dart';
 import 'widgets/color_icon.dart';
 import 'widgets/setting_item.dart';
 import 'cubit/settings_system_cubit.dart';
@@ -96,17 +96,7 @@ class SettingsPage extends StatelessWidget {
                       title: S.of(context).Check_For_Update,
                       leading: const Icon(Icons.update_rounded),
                       onTap: () async {
-                        Modals.showCenterLoadingModal(
-                          context,
-                        );
-                        final info = await checkUpdate();
-                        if (context.mounted) {
-                          Navigator.pop(context);
-                          Modals.showUpdateDialog(
-                            context,
-                            info,
-                          );
-                        }
+                        await UpdateService.manualCheck(context);
                       },
                     ),
                     SettingTile(
