@@ -48,7 +48,7 @@ jobs:
           echo "App version: $APP_VERSION+$BUILD_NUMBER"
       
       - name: Setup Flutter with FVM
-        uses: kuhnroyal/flutter-fvm-config-action@v2
+        uses: kuhnroyal/flutter-fvm-config-action/setup@v3
       
       - name: Decode keystore
         run: |
@@ -64,13 +64,13 @@ jobs:
           EOF
       
       - name: Install dependencies
-        run: flutter pub get
+        run: fvm flutter pub get
       
       - name: Build Android APK (Production - Universal)
-        run: flutter build apk --dart-define=FLAVOR=production --flavor production --release
-      
+        run: fvm flutter build apk --dart-define=FLAVOR=production --flavor production --release
+
       - name: Build Android APK (Production - Split per ABI)
-        run: flutter build apk --dart-define=FLAVOR=production --flavor production --release --split-per-abi
+        run: fvm flutter build apk --dart-define=FLAVOR=production --flavor production --release --split-per-abi
       
       - name: Build Android App Bundle (Production)
         run: flutter build appbundle --dart-define=FLAVOR=production --flavor production --release
