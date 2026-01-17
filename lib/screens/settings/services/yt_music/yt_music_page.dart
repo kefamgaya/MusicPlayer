@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gyawun/generated/l10n.dart';
-import 'package:gyawun/features/settings/widgets/setting_item.dart';
+import 'package:gyawun/screens/settings/widgets/setting_item.dart';
 import 'package:gyawun/themes/text_styles.dart';
 import 'package:gyawun/utils/bottom_modals.dart';
 

@@ -7,7 +7,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gyawun/core/utils/service_locator.dart';
-import 'package:gyawun/features/search/cubit/search_cubit.dart';
+import 'package:gyawun/screens/search/cubit/search_cubit.dart';
 import 'package:gyawun/utils/internet_guard.dart';
 import 'package:loading_indicator_m3e/loading_indicator_m3e.dart';
 

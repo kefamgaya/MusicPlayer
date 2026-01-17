@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gyawun/core/utils/service_locator.dart';
-import 'package:gyawun/features/home/cubit/home_cubit.dart';
+import 'package:gyawun/screens/home/cubit/home_cubit.dart';
 import 'package:gyawun/core/widgets/section_item.dart';
 import 'package:gyawun/utils/internet_guard.dart';
 import 'package:loading_indicator_m3e/loading_indicator_m3e.dart';

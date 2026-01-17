@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:gyawun/features/settings/player/equalizer/cubit/equalizer_cubit.dart';
-import 'package:gyawun/features/settings/player/equalizer/cubit/equalizer_state.dart';
-import 'package:gyawun/features/settings/player/equalizer/cubit/loudness_cubit.dart';
-import 'package:gyawun/features/settings/player/equalizer/cubit/loudness_state.dart';
+import 'package:gyawun/screens/settings/player/equalizer/cubit/equalizer_cubit.dart';
+import 'package:gyawun/screens/settings/player/equalizer/cubit/equalizer_state.dart';
+import 'package:gyawun/screens/settings/player/equalizer/cubit/loudness_cubit.dart';
+import 'package:gyawun/screens/settings/player/equalizer/cubit/loudness_state.dart';
 import 'package:gyawun/generated/l10n.dart';
-import 'package:gyawun/features/settings/widgets/setting_item.dart';
+import 'package:gyawun/screens/settings/widgets/setting_item.dart';
 import 'package:gyawun/services/media_player.dart';
 import 'package:gyawun/services/settings_manager.dart';
 import 'package:gyawun/themes/text_styles.dart';
