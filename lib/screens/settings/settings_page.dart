@@ -96,9 +96,6 @@ class SettingsPage extends StatelessWidget {
                       title: S.of(context).Check_For_Update,
                       leading: const Icon(Icons.update_rounded),
                       onTap: () async {
-                        Modals.showCenterLoadingModal(
-                          context,
-                        );
                         await UpdateService.manualCheck(context);
                       },
                     ),

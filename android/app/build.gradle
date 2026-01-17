@@ -57,7 +57,6 @@ android {
         beta {
             dimension = "default"
             applicationIdSuffix = ".beta"
-            versionNameSuffix = "-beta"
         }
         production {
             dimension = "default"
