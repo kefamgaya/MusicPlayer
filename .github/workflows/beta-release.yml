@@ -1,28 +1,15 @@
-name: Production Release
+name: Beta Release
 
 on:
   pull_request:
     branches:
-      - main
+      - beta
     types:
       - closed
 
 jobs:
-  validate-source:
+  beta-release:
     if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Validate PR is from beta branch
-        run: |
-          if [ "${{ github.event.pull_request.head.ref }}" != "beta" ]; then
-            echo "❌ Error: PRs to main must come from beta branch only"
-            exit 1
-          fi
-          echo "✅ PR is from beta branch"
-
-  production-release:
-    needs: validate-source
     runs-on: ubuntu-latest
 
     steps:
@@ -38,31 +25,30 @@ jobs:
           echo "version=$FVM_VERSION" >> $GITHUB_OUTPUT
           echo "Flutter version from FVM: $FVM_VERSION"
 
-      # 🔒 Enforce that main is built ONLY from beta versions
-      - name: Validate beta version exists
+      # 🔒 Ensure git uses placeholder version only
+      - name: Validate pubspec placeholder version
         run: |
-          if ! grep -q -- "-beta." pubspec.yaml; then
-            echo "❌ Error: Production release must come from a beta version"
+          if ! grep -qE '^version: .+\+0$' pubspec.yaml; then
+            echo "❌ Error: pubspec.yaml must use X.Y.Z+0"
             exit 1
           fi
-          echo "✅ Beta version detected"
+          echo "✅ pubspec.yaml placeholder version confirmed"
 
-      # 🔑 Normalize version: remove -beta.N but KEEP build number
-      - name: Normalize production version
+      # 🔑 Derive beta version (X.Y.Z-beta.N+N)
+      - name: Set beta version
         id: app_version
         run: |
-          RAW_VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
-          BASE_VERSION=$(echo "$RAW_VERSION" | sed 's/-beta\.[0-9]\+//')
-          BUILD_NUMBER=$(echo "$RAW_VERSION" | cut -d'+' -f2)
+          BASE_VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d'+' -f1)
+          BUILD_NUMBER=${{ github.run_number }}
 
-          FINAL_VERSION="$BASE_VERSION+$BUILD_NUMBER"
+          FINAL_VERSION="$BASE_VERSION-beta.$BUILD_NUMBER+$BUILD_NUMBER"
 
           sed -i "s/^version:.*/version: $FINAL_VERSION/" pubspec.yaml
 
-          echo "version=$BASE_VERSION" >> $GITHUB_OUTPUT
+          echo "version=$BASE_VERSION-beta.$BUILD_NUMBER" >> $GITHUB_OUTPUT
           echo "build=$BUILD_NUMBER" >> $GITHUB_OUTPUT
 
-          echo "✅ Final production version: $FINAL_VERSION"
+          echo "✅ Beta version set to: $FINAL_VERSION"
 
       - name: Setup Flutter with FVM
         uses: kuhnroyal/flutter-fvm-config-action/setup@v3
@@ -83,62 +69,70 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build Android APK (Production - Universal)
-        run: flutter build apk --dart-define=FLAVOR=production --flavor production --release
+      - name: Build Android APK (Beta - Universal)
+        run: flutter build apk \
+          --dart-define=FLAVOR=beta \
+          --flavor beta \
+          --release
 
-      - name: Build Android APK (Production - Split per ABI)
-        run: flutter build apk --dart-define=FLAVOR=production --flavor production --release --split-per-abi
+      - name: Build Android APK (Beta - Split per ABI)
+        run: flutter build apk \
+          --dart-define=FLAVOR=beta \
+          --flavor beta \
+          --release \
+          --split-per-abi
 
       - name: Rename build artifacts
         run: |
           mkdir -p releases
-          cp build/app/outputs/flutter-apk/app-production-release.apk \
-             releases/gyawun-v${{ steps.app_version.outputs.version }}-universal.apk
 
-          cp build/app/outputs/flutter-apk/app-armeabi-v7a-production-release.apk \
-             releases/gyawun-v${{ steps.app_version.outputs.version }}-armeabi-v7a.apk
+          cp build/app/outputs/flutter-apk/app-beta-release.apk \
+             releases/gyawun-beta-v${{ steps.app_version.outputs.version }}-universal.apk
 
-          cp build/app/outputs/flutter-apk/app-arm64-v8a-production-release.apk \
-             releases/gyawun-v${{ steps.app_version.outputs.version }}-arm64-v8a.apk
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-beta-release.apk \
+             releases/gyawun-beta-v${{ steps.app_version.outputs.version }}-armeabi-v7a.apk
 
-          cp build/app/outputs/flutter-apk/app-x86_64-production-release.apk \
-             releases/gyawun-v${{ steps.app_version.outputs.version }}-x86_64.apk
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-beta-release.apk \
+             releases/gyawun-beta-v${{ steps.app_version.outputs.version }}-arm64-v8a.apk
 
-      - name: Create Release
+          cp build/app/outputs/flutter-apk/app-x86_64-beta-release.apk \
+             releases/gyawun-beta-v${{ steps.app_version.outputs.version }}-x86_64.apk
+
+      - name: Create Pre-Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.app_version.outputs.version }}
-          name: Release v${{ steps.app_version.outputs.version }}
-          prerelease: false
+          name: Beta v${{ steps.app_version.outputs.version }}
+          prerelease: true
           draft: false
           body: |
-            ## Release v${{ steps.app_version.outputs.version }}
+            ## Beta Release v${{ steps.app_version.outputs.version }}
 
             **Build Information:**
             - App Version: `${{ steps.app_version.outputs.version }}`
             - Build Number: `${{ steps.app_version.outputs.build }}`
             - Flutter Version: `${{ steps.fvm_version.outputs.version }}`
-            - Branch: `main`
+            - Branch: `beta`
 
             **Available Downloads:**
 
             📱 **Universal APK**
-            - `gyawun-v${{ steps.app_version.outputs.version }}-universal.apk`
+            - `gyawun-beta-v${{ steps.app_version.outputs.version }}-universal.apk`
 
             🎯 **Architecture-Specific APKs**
-            - `gyawun-v${{ steps.app_version.outputs.version }}-arm64-v8a.apk`
-            - `gyawun-v${{ steps.app_version.outputs.version }}-armeabi-v7a.apk`
-            - `gyawun-v${{ steps.app_version.outputs.version }}-x86_64.apk`
+            - `gyawun-beta-v${{ steps.app_version.outputs.version }}-arm64-v8a.apk`
+            - `gyawun-beta-v${{ steps.app_version.outputs.version }}-armeabi-v7a.apk`
+            - `gyawun-beta-v${{ steps.app_version.outputs.version }}-x86_64.apk`
 
             **Changes:**
             ${{ github.event.pull_request.body }}
 
             ---
-            ✅ **Production Release**
+            ⚠️ **Beta release – for testing only**
           files: |
-            releases/gyawun-v${{ steps.app_version.outputs.version }}-universal.apk
-            releases/gyawun-v${{ steps.app_version.outputs.version }}-arm64-v8a.apk
-            releases/gyawun-v${{ steps.app_version.outputs.version }}-armeabi-v7a.apk
-            releases/gyawun-v${{ steps.app_version.outputs.version }}-x86_64.apk
+            releases/gyawun-beta-v${{ steps.app_version.outputs.version }}-universal.apk
+            releases/gyawun-beta-v${{ steps.app_version.outputs.version }}-arm64-v8a.apk
+            releases/gyawun-beta-v${{ steps.app_version.outputs.version }}-armeabi-v7a.apk
+            releases/gyawun-beta-v${{ steps.app_version.outputs.version }}-x86_64.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
