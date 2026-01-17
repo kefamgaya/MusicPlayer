@@ -39,14 +39,17 @@ jobs:
         id: app_version
         run: |
           BASE_VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d'+' -f1)
-          BUILD_NUMBER=${{ github.run_number }}
 
-          FINAL_VERSION="$BASE_VERSION-beta.$BUILD_NUMBER+$BUILD_NUMBER"
+          LEGACY_BASE=100
+          BETA_SEQ=${{ github.run_number }}
+          VERSION_CODE=$((LEGACY_BASE + BETA_SEQ))
+
+          FINAL_VERSION="$BASE_VERSION-beta.$BETA_SEQ+$VERSION_CODE"
 
           sed -i "s/^version:.*/version: $FINAL_VERSION/" pubspec.yaml
 
-          echo "version=$BASE_VERSION-beta.$BUILD_NUMBER" >> $GITHUB_OUTPUT
-          echo "build=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "version=$BASE_VERSION-beta.$BETA_SEQ" >> $GITHUB_OUTPUT
+          echo "build=$VERSION_CODE" >> $GITHUB_OUTPUT
 
           echo "✅ Beta version set to: $FINAL_VERSION"
 

@@ -53,15 +53,21 @@ jobs:
         run: |
           RAW_VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
 
-          BASE_VERSION=$(echo "$RAW_VERSION" | sed 's/-beta\.[0-9]\+//')
-          BUILD_NUMBER=$(echo "$RAW_VERSION" | cut -d'+' -f2)
+          # Ensure this is promoted from beta
+          if ! echo "$RAW_VERSION" | grep -q -- "-beta."; then
+            echo "❌ Error: Production release must be promoted from a beta build"
+            exit 1
+          fi
 
-          FINAL_VERSION="$BASE_VERSION+$BUILD_NUMBER"
+          BASE_VERSION=$(echo "$RAW_VERSION" | sed 's/-beta\.[0-9]\+//')
+          VERSION_CODE=$(echo "$RAW_VERSION" | cut -d'+' -f2)
+
+          FINAL_VERSION="$BASE_VERSION+$VERSION_CODE"
 
           sed -i "s/^version:.*/version: $FINAL_VERSION/" pubspec.yaml
 
           echo "version=$BASE_VERSION" >> $GITHUB_OUTPUT
-          echo "build=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "build=$VERSION_CODE" >> $GITHUB_OUTPUT
 
           echo "✅ Final production version: $FINAL_VERSION"
 
@@ -85,17 +91,10 @@ jobs:
         run: flutter pub get
 
       - name: Build Android APK (Production - Universal)
-        run: flutter build apk \
-          --dart-define=FLAVOR=production \
-          --flavor production \
-          --release
+        run: flutter build apk --dart-define=FLAVOR=production --flavor production --release
 
       - name: Build Android APK (Production - Split per ABI)
-        run: flutter build apk \
-          --dart-define=FLAVOR=production \
-          --flavor production \
-          --release \
-          --split-per-abi
+        run: flutter build apk --dart-define=FLAVOR=production --flavor production --release --split-per-abi
 
       - name: Rename build artifacts
         run: |
