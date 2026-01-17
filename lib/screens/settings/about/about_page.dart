@@ -1,16 +1,39 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../app_config.dart';
 import '../../../generated/l10n.dart';
 import '../../../themes/colors.dart';
 import '../../../utils/adaptive_widgets/adaptive_widgets.dart';
 import '../widgets/color_icon.dart';
 import '../widgets/setting_item.dart';
 
-class AboutPage extends StatelessWidget {
+class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
+
+  @override
+  State<AboutPage> createState() => _AboutPageState();
+}
+
+class _AboutPageState extends State<AboutPage> {
+  String? _version;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (!mounted) return;
+
+    setState(() {
+      // Example: 2.0.16-beta.3 or 2.0.16
+      _version = info.version;
+    });
+  }
 
   void _open(String url) {
     launchUrl(
@@ -52,15 +75,15 @@ class AboutPage extends StatelessWidget {
               const SizedBox(height: 16),
 
               /// APP INFO
-              SettingTile(
-                leading: const Icon(Icons.title),
+              const SettingTile(
+                leading: Icon(Icons.title),
                 title: 'Gyawun Music',
                 isFirst: true,
               ),
               SettingTile(
                 leading: const Icon(Icons.new_releases),
                 title: S.of(context).Version,
-                subtitle: appConfig.codeName,
+                subtitle: _version ?? '—',
               ),
 
               /// DEVELOPER

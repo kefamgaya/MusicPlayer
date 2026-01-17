@@ -5,16 +5,13 @@ import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gyawun/screens/settings/player/equalizer/equalizer_page.dart';
 import 'package:gyawun/utils/playlist_thumbnail.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../generated/l10n.dart';
 import '../services/bottom_message.dart';
@@ -25,7 +22,6 @@ import '../services/settings_manager.dart';
 import '../themes/colors.dart';
 import '../themes/text_styles.dart';
 import 'adaptive_widgets/adaptive_widgets.dart';
-import 'check_update.dart';
 import 'format_duration.dart';
 import '../utils/extensions.dart';
 
@@ -46,15 +42,15 @@ class Modals {
     );
   }
 
-  static Future showUpdateDialog(
-          BuildContext context, UpdateInfo? updateInfo) =>
-      showDialog(
-        context: context,
-        useRootNavigator: false,
-        builder: (context) {
-          return _updateDialog(context, updateInfo);
-        },
-      );
+  // static Future showUpdateDialog(
+  //         BuildContext context, UpdateInfo? updateInfo) =>
+  //     showDialog(
+  //       context: context,
+  //       useRootNavigator: false,
+  //       builder: (context) {
+  //         return _updateDialog(context, updateInfo);
+  //       },
+  //     );
   static Future<String?> showTextField(
     BuildContext context, {
     String? title,
@@ -583,79 +579,79 @@ BottomModalLayout _addToPlaylist(BuildContext context, Map item) {
   );
 }
 
-SizedBox _updateDialog(BuildContext context, UpdateInfo? updateInfo) {
-  final f = DateFormat('MMMM dd, yyyy');
+// SizedBox _updateDialog(BuildContext context, UpdateInfo? updateInfo) {
+//   final f = DateFormat('MMMM dd, yyyy');
 
-  return SizedBox(
-    height: MediaQuery.of(context).size.height,
-    width: MediaQuery.of(context).size.width,
-    child: LayoutBuilder(builder: (context, constraints) {
-      return AlertDialog(
-        icon: Center(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-                color: Colors.green.withAlpha(100),
-                borderRadius: BorderRadius.circular(16)),
-            child: const Icon(
-              Icons.update_outlined,
-              size: 70,
-            ),
-          ),
-        ),
-        scrollable: true,
-        title: Column(
-          children: [
-            Text(updateInfo != null ? 'Update Available' : 'Update Info'),
-            if (updateInfo != null)
-              Text(
-                '${updateInfo.name}\n${f.format(DateTime.parse(updateInfo.publishedAt))}',
-                style: TextStyle(fontSize: 16, color: context.subtitleColor),
-              )
-          ],
-        ),
-        content: updateInfo != null
-            ? SizedBox(
-                width: constraints.maxWidth,
-                height: constraints.maxHeight - 400,
-                child: Markdown(
-                  data: updateInfo.body,
-                  shrinkWrap: true,
-                  softLineBreak: true,
-                  onTapLink: (text, href, title) {
-                    if (href != null) {
-                      launchUrl(Uri.parse(href),
-                          mode: LaunchMode.platformDefault);
-                    }
-                  },
-                ),
-              )
-            : const Center(
-                child: Text("You are already up to date."),
-              ),
-        actions: [
-          if (updateInfo != null)
-            AdaptiveButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel'),
-            ),
-          AdaptiveFilledButton(
-            onPressed: () {
-              Navigator.pop(context);
-              if (updateInfo != null) {
-                launchUrl(Uri.parse(updateInfo.downloadUrl),
-                    mode: LaunchMode.externalApplication);
-              }
-            },
-            child: Text(updateInfo != null ? 'Update' : 'Done'),
-          ),
-        ],
-      );
-    }),
-  );
-}
+//   return SizedBox(
+//     height: MediaQuery.of(context).size.height,
+//     width: MediaQuery.of(context).size.width,
+//     child: LayoutBuilder(builder: (context, constraints) {
+//       return AlertDialog(
+//         icon: Center(
+//           child: Container(
+//             padding: const EdgeInsets.all(16),
+//             decoration: BoxDecoration(
+//                 color: Colors.green.withAlpha(100),
+//                 borderRadius: BorderRadius.circular(16)),
+//             child: const Icon(
+//               Icons.update_outlined,
+//               size: 70,
+//             ),
+//           ),
+//         ),
+//         scrollable: true,
+//         title: Column(
+//           children: [
+//             Text(updateInfo != null ? 'Update Available' : 'Update Info'),
+//             if (updateInfo != null)
+//               Text(
+//                 '${updateInfo.name}\n${f.format(DateTime.parse(updateInfo.publishedAt))}',
+//                 style: TextStyle(fontSize: 16, color: context.subtitleColor),
+//               )
+//           ],
+//         ),
+//         content: updateInfo != null
+//             ? SizedBox(
+//                 width: constraints.maxWidth,
+//                 height: constraints.maxHeight - 400,
+//                 child: Markdown(
+//                   data: updateInfo.body,
+//                   shrinkWrap: true,
+//                   softLineBreak: true,
+//                   onTapLink: (text, href, title) {
+//                     if (href != null) {
+//                       launchUrl(Uri.parse(href),
+//                           mode: LaunchMode.platformDefault);
+//                     }
+//                   },
+//                 ),
+//               )
+//             : const Center(
+//                 child: Text("You are already up to date."),
+//               ),
+//         actions: [
+//           if (updateInfo != null)
+//             AdaptiveButton(
+//               onPressed: () {
+//                 Navigator.pop(context);
+//               },
+//               child: const Text('Cancel'),
+//             ),
+//           AdaptiveFilledButton(
+//             onPressed: () {
+//               Navigator.pop(context);
+//               if (updateInfo != null) {
+//                 launchUrl(Uri.parse(updateInfo.downloadUrl),
+//                     mode: LaunchMode.externalApplication);
+//               }
+//             },
+//             child: Text(updateInfo != null ? 'Update' : 'Done'),
+//           ),
+//         ],
+//       );
+//     }),
+//   );
+// }
 
 BottomModalLayout _textFieldBottomModal(BuildContext context,
     {String? title, String? hintText, String? doneText}) {
