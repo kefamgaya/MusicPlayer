@@ -1,7 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:yt_music/ytmusic.dart';
 
-import '../ytmusic/ytmusic.dart';
 
 Box _box = Hive.box('SETTINGS');
 

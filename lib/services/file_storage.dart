@@ -13,7 +13,6 @@ import 'package:path/path.dart' as path;
 import 'package:share_plus/share_plus.dart';
 
 import '../utils/enhanced_image.dart';
-import '../ytmusic/ytmusic.dart';
 import 'library.dart';
 import 'settings_manager.dart';
 
@@ -175,7 +174,7 @@ class FileStorage {
     Map? downloads = backup['data']?['downloads'];
     if (settings != null) {
       await GetIt.I<SettingsManager>().setSettings(settings);
-      await GetIt.I<YTMusic>().refreshHeaders();
+      // await GetIt.I<YTMusic>().refreshHeaders();
     }
     if (favourites != null) {
       await Future.forEach(favourites.entries, (entry) async {

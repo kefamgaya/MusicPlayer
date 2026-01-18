@@ -7,9 +7,9 @@ import 'package:gyawun/services/yt_audio_stream.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:yt_music/ytmusic.dart';
 
 import '../utils/add_history.dart';
-import '../ytmusic/ytmusic.dart';
 import 'settings_manager.dart';
 
 class MediaPlayer extends ChangeNotifier {
@@ -33,6 +33,8 @@ class MediaPlayer extends ChangeNotifier {
       ValueNotifier(ProgressBarState());
 
   bool _shuffleModeEnabled = false;
+
+  bool autoFetching=false;
 
   MediaPlayer() {
     if (Platform.isAndroid) {
@@ -327,12 +329,12 @@ class MediaPlayer extends ChangeNotifier {
     if (song['videoId'] == null) return;
 
     // stop and set the tapped song as the single source so it plays immediately
-    await _player.pause();
-    await _player.stop();
-    await _player.clearAudioSources();
+    // await _player.pause();
+    // await _player.stop();
+    // await _player.clearAudioSources();
 
     final source = await _getAudioSource(song);
-    await _player.setAudioSources([source]);
+    await _player.setAudioSource(source);
     await _player.play();
   }
 
@@ -370,8 +372,6 @@ class MediaPlayer extends ChangeNotifier {
   }
 
   Future<void> playAll(List songs, {int index = 0}) async {
-    await _player.stop();
-    await _player.clearAudioSources();
 
     // Build full list and set atomically
     final List<AudioSource> sources = [];
@@ -450,6 +450,7 @@ class MediaPlayer extends ChangeNotifier {
       final mapSong = Map<String, dynamic>.from(song);
       return await _getAudioSource(mapSong);
     }));
+    
 
     // Current queue length
     final queueLength = _player.sequence.length;
@@ -466,16 +467,15 @@ class MediaPlayer extends ChangeNotifier {
   }
 
   void _listenToAutofetch() {
-    player.playerStateStream.listen((state) async {
-      if (state.processingState == ProcessingState.completed &&
-          _songList.isNotEmpty &&
-          GetIt.I<SettingsManager>().autofetchSongs) {
+    player.currentIndexStream.listen((index)async{
+      if(index==null) return;
+      if(player.sequence.length-index<5 && GetIt.I<SettingsManager>().autofetchSongs && autoFetching==false){
+        autoFetching = true;
         List nextSongs = await GetIt.I<YTMusic>().getNextSongList(
-            videoId: _songList[_currentIndex.value ?? 0].tag.id);
+            videoId: player.sequence[index].tag.id);
         if (nextSongs.isNotEmpty) nextSongs.removeAt(0);
-        await _player.clearAudioSources();
         await _addSongListToQueue(nextSongs);
-        await _player.play();
+        autoFetching=false;
       }
     });
   }

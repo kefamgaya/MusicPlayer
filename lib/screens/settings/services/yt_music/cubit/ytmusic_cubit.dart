@@ -2,9 +2,10 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:yt_music/client.dart';
+import 'package:yt_music/ytmusic.dart';
 
 import '../../../../../../services/settings_manager.dart';
-import '../../../../../../ytmusic/ytmusic.dart';
 
 part 'ytmusic_state.dart';
 
@@ -87,16 +88,22 @@ class YTMusicCubit extends Cubit<YTMusicState> {
 
   Future<void> setPersonalisedContent(bool value) async {
     await _box.put('PERSONALISED_CONTENT', value);
-    await _ytmusic.resetVisitorId();
+    final config = await YTClient.getConfig();
+    if(config!=null){
+      await _box.put('VISITOR_ID', config.visitorData);
+    }
   }
 
   Future<void> setVisitorId(String id) async {
     await _box.put('VISITOR_ID', id);
-    _ytmusic.refreshHeaders();
+    _ytmusic.updateConfig(visitorData: id);
   }
 
   Future<void> resetVisitorId() async {
-    await _ytmusic.resetVisitorId();
+    final config = await YTClient.getConfig();
+    if(config !=null){
+      await _box.put('VISITOR_ID', config.visitorData);
+    }
   }
 
   @override

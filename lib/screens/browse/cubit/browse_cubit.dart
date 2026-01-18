@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:gyawun/ytmusic/ytmusic.dart';
 import 'package:meta/meta.dart';
+import 'package:yt_music/ytmusic.dart';
 
 part 'browse_state.dart';
 

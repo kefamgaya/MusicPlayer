@@ -4,10 +4,10 @@ import 'package:expressive_refresh/expressive_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gyawun/core/network/internet_guard.dart';
 import 'package:gyawun/core/utils/service_locator.dart';
 import 'package:gyawun/screens/home/cubit/home_cubit.dart';
 import 'package:gyawun/core/widgets/section_item.dart';
-import 'package:gyawun/utils/internet_guard.dart';
 import 'package:loading_indicator_m3e/loading_indicator_m3e.dart';
 
 import '../../generated/l10n.dart';
@@ -98,7 +98,7 @@ class _HomePageState extends State<_HomePage> {
   @override
   Widget build(BuildContext context) {
     return InternetGuard(
-      onInternetRestored: context.read<HomeCubit>().fetch,
+      // onInternetRestored: context.read<HomeCubit>().fetch,
       child: Scaffold(
         appBar: PreferredSize(
           preferredSize: AppBar().preferredSize,

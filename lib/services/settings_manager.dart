@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '../ytmusic/ytmusic.dart';
 
 Box _box = Hive.box('SETTINGS');
 
@@ -90,16 +88,14 @@ class SettingsManager extends ChangeNotifier {
   }
 
   set location(Map<String, String> value) {
-    _box.put('LOCATION', value['value']);
+    _box.put('YT_LOCATION', value['value']);
     _location = value;
-    GetIt.I<YTMusic>().refreshContext();
     notifyListeners();
   }
 
   set language(Map<String, String> value) {
-    _box.put('LANGUAGE', value['value']);
+    _box.put('YT_LANGUAGE', value['value']);
     _language = value;
-    GetIt.I<YTMusic>().refreshContext();
     notifyListeners();
   }
 

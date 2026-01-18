@@ -6,12 +6,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gyawun/themes/theme.dart';
-import 'package:gyawun/ytmusic/modals/yt_config.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:just_audio_media_kit/just_audio_media_kit.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:yt_music/client.dart';
+import 'package:yt_music/modals/yt_config.dart';
+import 'package:yt_music/ytmusic.dart';
 
 import 'generated/l10n.dart';
 import 'services/download_manager.dart';
@@ -21,7 +23,6 @@ import 'services/lyrics.dart';
 import 'services/media_player.dart';
 import 'services/settings_manager.dart';
 import 'utils/router.dart';
-import 'ytmusic/ytmusic.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,21 +53,17 @@ void main() async {
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
-  String? visitorId = await Hive.box('SETTINGS').get('VISITOR_ID');
 
-  YTMusic ytMusic = YTMusic(
-    config:
-        YTConfig(visitorData: visitorId ?? '', language: 'en', location: 'IN'),
-    onIdUpdate: (visitorId) async {
-      await Hive.box('SETTINGS').put('VISITOR_ID', visitorId);
-    },
-  );
+  final ytConfig = await getYtConfig();
+  YTMusic ytMusic = YTMusic(config: ytConfig!);
+
 
   final GlobalKey<NavigatorState> panelKey = GlobalKey<NavigatorState>();
-
+  
   await FileStorage.initialise();
   FileStorage fileStorage = FileStorage();
   SettingsManager settingsManager = SettingsManager();
+
 
   GetIt.I.registerSingleton<SettingsManager>(settingsManager);
   MediaPlayer mediaPlayer = MediaPlayer();
@@ -147,4 +144,42 @@ Future<void> initialiseHive() async {
   await Hive.openBox('SONG_HISTORY');
   await Hive.openBox('FAVOURITES');
   await Hive.openBox('DOWNLOADS');
+}
+
+
+Future<YTConfig?>? getYtConfig()async{
+   String? visitorData = await Hive.box('SETTINGS').get('VISITOR_ID');
+  String language =
+      await Hive.box('SETTINGS').get('YT_LANGUAGE', defaultValue: 'en');
+  String location =
+      await Hive.box('SETTINGS').get('YT_LOCATION', defaultValue: 'IN');
+  String? apikey =
+      await Hive.box('SETTINGS').get('YT_API_KEY', defaultValue: null);
+  String clientName = await Hive.box('SETTINGS')
+      .get('YT_CLIENT_NAME', defaultValue: 'WEB_REMIX');
+  String? clientVersion =
+      await Hive.box('SETTINGS').get('YT_CLIENT_VERSION', defaultValue: null);
+
+  if (visitorData == null || apikey == null || clientVersion == null) {
+    final config = await YTClient.getConfig();
+    final box = Hive.box('SETTINGS');
+    await box.putAll({
+      'VISITOR_ID': visitorData ?? config?.visitorData,
+      'YT_LOCATION': location,
+      'YT_LANGUAGE': language,
+      'YT_API_KEY': config?.apiKey,
+      'YT_CLIENT_NAME': config?.clientName,
+      'YT_CLIENT_VERSION': config?.clientVersion,
+    });
+    return config;
+  } else {
+    return YTConfig(
+      visitorData: visitorData,
+      language: language,
+      location: location,
+      apiKey: apikey,
+      clientName: clientName,
+      clientVersion: clientVersion,
+    );
+  }
 }
