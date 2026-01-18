@@ -6,9 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gyawun/core/network/internet_guard.dart';
 import 'package:gyawun/core/utils/service_locator.dart';
 import 'package:gyawun/screens/search/cubit/search_cubit.dart';
-import 'package:gyawun/utils/internet_guard.dart';
 import 'package:loading_indicator_m3e/loading_indicator_m3e.dart';
 
 import '../../../generated/l10n.dart';
@@ -71,16 +71,6 @@ class _SearchPageState extends State<_SearchPage> {
   @override
   Widget build(BuildContext context) {
     return InternetGuard(
-      onInternetLost: () {
-        _focusNode?.unfocus();
-      },
-      onInternetRestored: () {
-        if (widget.title != null) {
-          context.read<SearchCubit>().search('');
-        } else {
-          _focusNode?.requestFocus();
-        }
-      },
       child: Scaffold(
         appBar: PreferredSize(
           preferredSize: const AdaptiveAppBar().preferredSize,

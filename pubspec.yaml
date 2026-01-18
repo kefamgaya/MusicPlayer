@@ -76,6 +76,10 @@ dependencies:
   navigation_rail_m3e: ^0.3.5
   package_info_plus: ^9.0.0
   flutter_markdown_plus: ^1.0.7
+  yt_music:
+    git:
+      url: https://github.com/sheikhhaziq/yt_music.git
+  connectivity_plus: ^7.0.0
 
 dev_dependencies:
   flutter_test:

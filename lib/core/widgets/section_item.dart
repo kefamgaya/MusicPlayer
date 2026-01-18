@@ -7,7 +7,7 @@ import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:gyawun/ytmusic/ytmusic.dart';
+import 'package:yt_music/ytmusic.dart';
 
 import '../../generated/l10n.dart';
 import '../../services/bottom_message.dart';

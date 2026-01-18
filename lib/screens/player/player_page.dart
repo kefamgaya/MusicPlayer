@@ -14,6 +14,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:text_scroll/text_scroll.dart';
+import 'package:yt_music/ytmusic.dart';
 
 import '../../generated/l10n.dart';
 import '../../services/download_manager.dart';
@@ -23,7 +24,6 @@ import '../../themes/dark.dart';
 import '../../themes/text_styles.dart';
 import '../../utils/adaptive_widgets/adaptive_widgets.dart';
 import '../../utils/bottom_modals.dart';
-import '../../ytmusic/ytmusic.dart';
 import 'widgets/lyrics_box.dart';
 import 'widgets/queue_list.dart';
 

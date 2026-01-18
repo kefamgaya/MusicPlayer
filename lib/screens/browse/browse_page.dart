@@ -5,12 +5,12 @@ import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:gyawun/core/network/internet_guard.dart';
 import 'package:gyawun/core/utils/service_locator.dart';
 import 'package:gyawun/screens/browse/cubit/browse_cubit.dart';
 import 'package:gyawun/core/widgets/section_item.dart';
-import 'package:gyawun/utils/internet_guard.dart';
 import 'package:loading_indicator_m3e/loading_indicator_m3e.dart';
-import 'package:provider/provider.dart';
+import 'package:yt_music/ytmusic.dart';
 
 import '../../generated/l10n.dart';
 import '../../services/bottom_message.dart';
@@ -20,7 +20,6 @@ import '../../themes/colors.dart';
 import '../../utils/adaptive_widgets/adaptive_widgets.dart';
 import '../../utils/bottom_modals.dart';
 import '../../utils/enhanced_image.dart';
-import '../../ytmusic/ytmusic.dart';
 import '../../utils/extensions.dart';
 
 class BrowsePage extends StatelessWidget {
@@ -127,7 +126,7 @@ class _BrowsePageState extends State<_BrowsePage> {
   @override
   Widget build(BuildContext context) {
     return InternetGuard(
-      onInternetRestored: fetchData,
+      // onInternetRestored: fetchData,
       child: Scaffold(
         appBar: AppBar(
           title: header['title'] != null ? Text(header['title']) : null,

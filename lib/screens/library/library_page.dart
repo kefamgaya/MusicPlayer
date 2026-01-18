@@ -5,9 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gyawun/core/network/internet_guard.dart';
 import 'package:gyawun/core/utils/service_locator.dart';
 import 'package:gyawun/utils/extensions.dart';
-import 'package:gyawun/utils/internet_guard.dart';
 import 'package:gyawun/utils/playlist_thumbnail.dart';
 
 import '../../../../generated/l10n.dart';
