@@ -5,10 +5,10 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:gyawun/ytmusic/ytmusic.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'package:yt_music/ytmusic.dart';
 
 import 'file_storage.dart';
 import 'settings_manager.dart';

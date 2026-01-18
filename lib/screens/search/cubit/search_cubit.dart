@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
-import 'package:gyawun/ytmusic/ytmusic.dart';
 import 'package:hive/hive.dart';
 import 'package:meta/meta.dart';
+import 'package:yt_music/ytmusic.dart';
 
 part 'search_state.dart';
 

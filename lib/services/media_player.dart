@@ -7,9 +7,9 @@ import 'package:gyawun/services/yt_audio_stream.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:yt_music/ytmusic.dart';
 
 import '../utils/add_history.dart';
-import '../ytmusic/ytmusic.dart';
 import 'settings_manager.dart';
 
 class MediaPlayer extends ChangeNotifier {

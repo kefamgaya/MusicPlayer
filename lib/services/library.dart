@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:yt_music/ytmusic.dart';
 
-import '../ytmusic/ytmusic.dart';
 
 class LibraryService extends ChangeNotifier {
   final Box _box = Hive.box('LIBRARY');
