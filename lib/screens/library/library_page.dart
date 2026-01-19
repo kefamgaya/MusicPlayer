@@ -105,7 +105,7 @@ class _LibraryBody extends StatelessWidget {
                 leading: _iconBox(context, AdaptiveIcons.heart_fill),
                 subtitle: Text(S.of(context).nSongs(favouritesCount)),
                 trailing: Icon(AdaptiveIcons.chevron_right),
-                onTap: () => context.push('/saved/favourites_page'),
+                onTap: () => context.push('/library/favourites'),
               ),
 
               /// DOWNLOADS
@@ -115,7 +115,7 @@ class _LibraryBody extends StatelessWidget {
                 leading: _iconBox(context, AdaptiveIcons.download),
                 subtitle: Text(S.of(context).nSongs(downloadsCount)),
                 trailing: Icon(AdaptiveIcons.chevron_right),
-                onTap: () => context.push('/saved/downloads_page'),
+                onTap: () => context.push('/library/downloads'),
               ),
 
               /// HISTORY
@@ -125,7 +125,7 @@ class _LibraryBody extends StatelessWidget {
                 leading: _iconBox(context, Icons.history),
                 subtitle: Text(S.of(context).nSongs(historyCount)),
                 trailing: Icon(AdaptiveIcons.chevron_right),
-                onTap: () => context.push('/saved/history_page'),
+                onTap: () => context.push('/library/history'),
               ),
 
               /// PLAYLISTS
@@ -172,7 +172,7 @@ class _LibraryBody extends StatelessWidget {
                               );
                             } else {
                               context.push(
-                                '/saved/playlist_details',
+                                '/library/playlist_details',
                                 extra: {
                                   'playlistkey': key,
                                 },

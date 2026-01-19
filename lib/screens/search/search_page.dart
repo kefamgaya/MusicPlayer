@@ -71,6 +71,11 @@ class _SearchPageState extends State<_SearchPage> {
   @override
   Widget build(BuildContext context) {
     return InternetGuard(
+      onConnectivityRestored:(){
+        if(_textEditingController?.text!=null){
+          context.read<SearchCubit>().search(_textEditingController!.text);
+        }
+      },
       child: Scaffold(
         appBar: PreferredSize(
           preferredSize: const AdaptiveAppBar().preferredSize,

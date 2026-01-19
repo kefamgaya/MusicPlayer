@@ -61,7 +61,7 @@ class _ChipPageState extends State<_ChipPage> {
   @override
   Widget build(BuildContext context) {
     return InternetGuard(
-      // onInternetRestored: context.read<ChipCubit>().fetch,
+      onConnectivityRestored: context.read<ChipCubit>().fetch,
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
