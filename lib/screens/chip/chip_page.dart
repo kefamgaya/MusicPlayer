@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gyawun/core/network/internet_guard.dart';
+import 'package:gyawun/core/widgets/internet_guard.dart';
 import 'package:gyawun/core/utils/service_locator.dart';
 import 'package:gyawun/screens/chip/cubit/chip_cubit.dart';
 import 'package:gyawun/core/widgets/section_item.dart';
@@ -61,7 +61,7 @@ class _ChipPageState extends State<_ChipPage> {
   @override
   Widget build(BuildContext context) {
     return InternetGuard(
-      // onInternetRestored: context.read<ChipCubit>().fetch,
+      onConnectivityRestored: context.read<ChipCubit>().fetch,
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
