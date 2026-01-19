@@ -10,10 +10,12 @@ import 'package:gyawun/utils/adaptive_widgets/icons.dart';
 
 class InternetGuard extends StatefulWidget {
   final Widget child;
+  final VoidCallback? onConnectivityRestored;
 
   const InternetGuard({
     super.key,
     required this.child,
+    this.onConnectivityRestored,
   });
 
   @override
@@ -24,6 +26,7 @@ class _InternetGuardState extends State<InternetGuard> {
   final Connectivity _connectivity = Connectivity();
 
   bool _isOnline = true;
+  bool _wasOffline = false;
   StreamSubscription? _subscription;
 
   @override
@@ -53,6 +56,15 @@ class _InternetGuardState extends State<InternetGuard> {
 
     if (online != _isOnline && mounted) {
       setState(() {
+        if (!online) {
+          _wasOffline = true;
+        }
+        
+        if (online && _wasOffline) {
+          _wasOffline = false;
+          widget.onConnectivityRestored?.call();
+        }
+        
         _isOnline = online;
       });
     }
@@ -103,7 +115,7 @@ class _InternetGuardState extends State<InternetGuard> {
             ),
             const SizedBox(height: 20),
             AdaptiveFilledButton(
-              onPressed: () => context.go('/saved/downloads'),
+              onPressed: () => context.go('/library/downloads'),
               child: Text(S.of(context).Go_To_Downloads),
             ),
             const SizedBox(height: 20),

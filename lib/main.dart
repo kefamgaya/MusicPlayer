@@ -9,6 +9,7 @@ import 'package:gyawun/themes/theme.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:just_audio_media_kit/just_audio_media_kit.dart';
+import 'package:m3e_collection/m3e_collection.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:yt_music/client.dart';
@@ -31,10 +32,10 @@ void main() async {
       androidNotificationChannelId: 'com.jhelum.gyawun.audio',
       androidNotificationChannelName: 'Audio playback',
       androidNotificationOngoing: true,
-      androidStopForegroundOnPause: false,
+      // androidStopForegroundOnPause: false,
     );
   }
-  
+
   if (Platform.isWindows || Platform.isLinux) {
     JustAudioMediaKit.ensureInitialized();
     JustAudioMediaKit.bufferSize = 8 * 1024 * 1024;
@@ -93,40 +94,57 @@ class Gyawun extends StatelessWidget {
   const Gyawun({super.key});
   @override
   Widget build(BuildContext context) {
-    return DynamicColorBuilder(builder: (lightScheme, darkScheme) {
-      return Shortcuts(
-        shortcuts: <LogicalKeySet, Intent>{
-          LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent(),
-        },
-        child: MaterialApp.router(
-          title: 'Gyawun Music',
-          routerConfig: router,
-          locale: Locale(context.watch<SettingsManager>().language['value']!),
-          localizationsDelegates: const [
-            S.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
-          supportedLocales: S.delegate.supportedLocales,
-          debugShowCheckedModeBanner: false,
-          themeMode: context.watch<SettingsManager>().themeMode,
-          theme: AppTheme.light(
-            primary: context.watch<SettingsManager>().dynamicColors &&
-                    lightScheme != null
-                ? lightScheme.primary
-                : context.watch<SettingsManager>().accentColor,
-          ),
-          darkTheme: AppTheme.dark(
-            primary: context.watch<SettingsManager>().dynamicColors &&
+    return DynamicColorBuilder(
+      builder: (lightScheme, darkScheme) {
+        final primaryColor =
+            (context.watch<SettingsManager>().dynamicColors &&
                     darkScheme != null
                 ? darkScheme.primary
-                : context.watch<SettingsManager>().accentColor,
-            isPureBlack: context.watch<SettingsManager>().amoledBlack,
+                : context.watch<SettingsManager>().accentColor) ??
+            Colors.red;
+        final isPureBlack = context.watch<SettingsManager>().amoledBlack;
+        return Shortcuts(
+          shortcuts: <LogicalKeySet, Intent>{
+            LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent(),
+          },
+          child: MaterialApp.router(
+            title: 'Gyawun Music',
+            routerConfig: router,
+            locale: Locale(context.watch<SettingsManager>().language['value']!),
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+            ],
+            supportedLocales: S.delegate.supportedLocales,
+            debugShowCheckedModeBanner: false,
+            themeMode: context.watch<SettingsManager>().themeMode,
+            theme: ColorScheme.fromSeed(
+              seedColor: primaryColor,
+            ).toM3EThemeData(base: AppTheme.light(primary: primaryColor)),
+            darkTheme: ColorScheme.fromSeed(
+              brightness: Brightness.dark,
+              surface: isPureBlack ? Colors.black : null,
+              seedColor: primaryColor,
+            ).toM3EThemeData(base: AppTheme.dark(primary: primaryColor,isPureBlack: isPureBlack)),
+            // theme: AppTheme.light(
+            //   primary: context.watch<SettingsManager>().dynamicColors &&
+            //           lightScheme != null
+            //       ? lightScheme.primary
+            //       : context.watch<SettingsManager>().accentColor,
+            // ),
+            // darkTheme: AppTheme.dark(
+            //   primary: context.watch<SettingsManager>().dynamicColors &&
+            //           darkScheme != null
+            //       ? darkScheme.primary
+            //       : context.watch<SettingsManager>().accentColor,
+            //   isPureBlack: context.watch<SettingsManager>().amoledBlack,
+            // ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }
 
@@ -147,16 +165,21 @@ Future<void> initialiseHive() async {
 
 Future<YTConfig?>? getYtConfig() async {
   String? visitorData = await Hive.box('SETTINGS').get('VISITOR_ID');
-  String language =
-      await Hive.box('SETTINGS').get('YT_LANGUAGE', defaultValue: 'en');
-  String location =
-      await Hive.box('SETTINGS').get('YT_LOCATION', defaultValue: 'IN');
-  String? apikey =
-      await Hive.box('SETTINGS').get('YT_API_KEY', defaultValue: null);
-  String clientName = await Hive.box('SETTINGS')
-      .get('YT_CLIENT_NAME', defaultValue: 'WEB_REMIX');
-  String? clientVersion =
-      await Hive.box('SETTINGS').get('YT_CLIENT_VERSION', defaultValue: null);
+  String language = await Hive.box(
+    'SETTINGS',
+  ).get('YT_LANGUAGE', defaultValue: 'en');
+  String location = await Hive.box(
+    'SETTINGS',
+  ).get('YT_LOCATION', defaultValue: 'IN');
+  String? apikey = await Hive.box(
+    'SETTINGS',
+  ).get('YT_API_KEY', defaultValue: null);
+  String clientName = await Hive.box(
+    'SETTINGS',
+  ).get('YT_CLIENT_NAME', defaultValue: 'WEB_REMIX');
+  String? clientVersion = await Hive.box(
+    'SETTINGS',
+  ).get('YT_CLIENT_VERSION', defaultValue: null);
 
   if (visitorData == null || apikey == null || clientVersion == null) {
     final config = await YTClient.getConfig();
