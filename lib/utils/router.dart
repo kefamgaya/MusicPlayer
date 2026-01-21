@@ -109,19 +109,19 @@ List<StatefulShellBranch> branches = [
   ),
   StatefulShellBranch(routes: [
     GoRoute(
-      path: '/saved',
+      path: '/library',
       builder: (context, state) => const LibraryPage(),
       routes: [
         GoRoute(
-          path: 'favourites_page',
+          path: 'favourites',
           builder: (context, state) => const FavouritesPage(),
         ),
         GoRoute(
-          path: 'downloads_page',
+          path: 'downloads',
           builder: (context, state) => const DownloadsPage(),
           routes: [
             GoRoute(
-              path: 'download_playlist_page',
+              path: 'download_playlist',
               builder: (context, state) {
                 final args = state.extra as Map<String, dynamic>;
                 return DownloadPlaylistPage(
@@ -130,13 +130,13 @@ List<StatefulShellBranch> branches = [
               },
             ),
             GoRoute(
-              path: 'downloading_page',
+              path: 'downloading',
               builder: (context, state) => const DownloadingPage(),
             ),
           ],
         ),
         GoRoute(
-          path: 'history_page',
+          path: 'history',
           builder: (context, state) => const HistoryPage(),
         ),
         GoRoute(

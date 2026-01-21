@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '../ytmusic/ytmusic.dart';
 
 Box _box = Hive.box('SETTINGS');
 
@@ -56,7 +54,7 @@ class SettingsManager extends ChangeNotifier {
   SettingsManager() {
     _init();
   }
-  _init() {
+  void _init() {
     _themeMode = _themeModes[_box.get('THEME_MODE', defaultValue: 0)];
     _language = _languages.firstWhere((language) =>
         language['value'] == _box.get('LANGUAGE', defaultValue: 'en-IN'));
@@ -82,7 +80,7 @@ class SettingsManager extends ChangeNotifier {
         _box.get('EQUALIZER_BANDS_GAIN', defaultValue: []).cast<double>();
   }
 
-  setThemeMode(ThemeMode mode) async {
+  Future<void> setThemeMode(ThemeMode mode) async {
     _box.put('THEME_MODE', _themeModes.indexOf(mode));
     _themeMode = mode;
 
@@ -90,16 +88,14 @@ class SettingsManager extends ChangeNotifier {
   }
 
   set location(Map<String, String> value) {
-    _box.put('LOCATION', value['value']);
+    _box.put('YT_LOCATION', value['value']);
     _location = value;
-    GetIt.I<YTMusic>().refreshContext();
     notifyListeners();
   }
 
   set language(Map<String, String> value) {
-    _box.put('LANGUAGE', value['value']);
+    _box.put('YT_LANGUAGE', value['value']);
     _language = value;
-    GetIt.I<YTMusic>().refreshContext();
     notifyListeners();
   }
 
@@ -128,7 +124,7 @@ class SettingsManager extends ChangeNotifier {
   }
 
   set accentColor(Color? color) {
-    int? c = color?.value;
+    int? c = color?.toARGB32();
     _box.put('ACCENT_COLOR', c);
     _accentColor = color;
     notifyListeners();
@@ -166,6 +162,7 @@ class SettingsManager extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ignore: strict_top_level_inference
   set loudnessEnabled(enabled) {
     _box.put('LOUDNESS_ENABLED', enabled);
     _loudnessEnabled = enabled;

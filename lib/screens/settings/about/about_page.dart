@@ -1,13 +1,13 @@
-import 'package:flutter/cupertino.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:gyawun/core/widgets/expressive_app_bar.dart';
+import 'package:gyawun/core/widgets/expressive_list_group.dart';
+import 'package:gyawun/core/widgets/expressive_list_tile.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../generated/l10n.dart';
-import '../../../themes/colors.dart';
-import '../../../utils/adaptive_widgets/adaptive_widgets.dart';
 import '../widgets/color_icon.dart';
-import '../widgets/setting_item.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -36,132 +36,166 @@ class _AboutPageState extends State<AboutPage> {
   }
 
   void _open(String url) {
-    launchUrl(
-      Uri.parse(url),
-      mode: LaunchMode.externalApplication,
-    );
+    launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
   @override
   Widget build(BuildContext context) {
-    return AdaptiveScaffold(
-      appBar: AdaptiveAppBar(
-        title: Text(S.of(context).About),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1000),
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            children: [
-              /// APP ICON
-              Center(
-                child: Image.asset(
-                  'assets/images/icon.png',
-                  height: 100,
-                  width: 100,
-                  errorBuilder: (_, __, ___) => Container(
-                    height: 100,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      color: darkGreyColor.withAlpha(50),
-                      borderRadius: BorderRadius.circular(50),
-                    ),
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    return Scaffold(
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) {
+          return [
+            ExpressiveAppBar(title: S.of(context).About, hasLeading: true),
+          ];
+        },
+        body: Center(
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 1000),
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              children: [
+                Center(
+                  child: Column(
+                    children: [
+                      Container(
+                        height: 100,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          color: colorScheme.surfaceContainerHighest,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: colorScheme.shadow.withValues(alpha: 0.08),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Image.asset(
+                          'assets/images/icon.png',
+                          height: 100,
+                          width: 100,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => Icon(
+                            Icons.music_note_rounded,
+                            size: 48,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Gyawun Music',
+                        style: textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: colorScheme.onSurface,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      if (_version != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: colorScheme.tertiaryContainer,
+                          ),
+                          child: Text(
+                            'Version $_version',
+                            style: textTheme.labelLarge?.copyWith(
+                              color: colorScheme.onTertiaryContainer,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              /// APP INFO
-              const SettingTile(
-                leading: Icon(Icons.title),
-                title: 'Gyawun Music',
-                isFirst: true,
-              ),
-              SettingTile(
-                leading: const Icon(Icons.new_releases),
-                title: S.of(context).Version,
-                subtitle: _version ?? '—',
-              ),
-
-              /// DEVELOPER
-              SettingTile(
-                leading: const Icon(CupertinoIcons.person),
-                title: S.of(context).Developer,
-                subtitle: S.of(context).Sheikh_Haziq,
-                trailing: Icon(AdaptiveIcons.chevron_right),
-                onTap: () => _open('https://github.com/sheikhhaziq'),
-              ),
-
-              /// ORGANIZATION
-              SettingTile(
-                leading: const ColorIcon(color: null, icon: Icons.other_houses),
-                title: S.of(context).Organisation,
-                subtitle: S.of(context).Jhelum_Corp,
-                trailing: Icon(AdaptiveIcons.chevron_right),
-                onTap: () => _open('https://jhelumcorp.github.io'),
-              ),
-
-              /// LINKS
-              SettingTile(
-                leading: const ColorIcon(color: null, icon: Icons.link),
-                title: 'Website',
-                trailing: Icon(AdaptiveIcons.chevron_right),
-                onTap: () => _open('https://gyawunmusic.vercel.app'),
-              ),
-              SettingTile(
-                leading:
-                    const ColorIcon(color: null, icon: Icons.telegram_outlined),
-                title: S.of(context).Telegram,
-                trailing: Icon(AdaptiveIcons.chevron_right),
-                onTap: () => _open('https://t.me/jhelumcorp'),
-              ),
-              SettingTile(
-                leading:
-                    const ColorIcon(color: null, icon: CupertinoIcons.person_3),
-                title: S.of(context).Contributors,
-                trailing: Icon(AdaptiveIcons.chevron_right),
-                onTap: () => _open(
-                  'https://github.com/jhelumcorp/gyawun/contributors',
+                ExpressiveListGroup(
+                  title: "About",
+                  children: [
+                    ExpressiveListTile(
+                      leading: const SettingsColorIcon(icon: Icons.person),
+                      title: const Text("Developer"),
+                      subtitle: const Text("Sheikh Haziq"),
+                      trailing: const Icon(FluentIcons.chevron_right_24_filled),
+                      onTap: () => _open('https://github.com/sheikhhaziq'),
+                    ),
+                    ExpressiveListTile(
+                      leading: const SettingsColorIcon(icon: Icons.link),
+                      title: const Text("Website"),
+                      trailing: const Icon(FluentIcons.chevron_right_24_filled),
+                      onTap: () => _open('https://gyawunmusic.vercel.app'),
+                    ),
+                  ],
                 ),
-              ),
-              SettingTile(
-                leading: const ColorIcon(color: null, icon: Icons.code),
-                title: S.of(context).Source_Code,
-                trailing: Icon(AdaptiveIcons.chevron_right),
-                onTap: () => _open('https://github.com/jhelumcorp/gyawun'),
-              ),
-              SettingTile(
-                leading: const ColorIcon(color: null, icon: Icons.bug_report),
-                title: S.of(context).Bug_Report,
-                trailing: Icon(AdaptiveIcons.chevron_right),
-                onTap: () => _open(
-                  'https://github.com/jhelumcorp/gyawun/issues/new'
-                  '?labels=bug&template=bug_report.yaml',
-                ),
-              ),
-              SettingTile(
-                leading: const ColorIcon(color: null, icon: Icons.request_page),
-                title: S.of(context).Feature_Request,
-                isLast: true,
-                trailing: Icon(AdaptiveIcons.chevron_right),
-                onTap: () => _open(
-                  'https://github.com/jhelumcorp/gyawun/issues/new'
-                  '?labels=enhancement&template=feature_request.yaml',
-                ),
-              ),
 
-              const SizedBox(height: 16),
+                const SizedBox(height: 24),
 
-              /// FOOTER
-              Center(
-                child: Text(
-                  S.of(context).Made_In_Kashmir,
+                ExpressiveListGroup(
+                  title: "Community",
+                  children: [
+                    ExpressiveListTile(
+                      leading: const SettingsColorIcon(icon: Icons.people),
+                      title: const Text("Contributors"),
+                      trailing: const Icon(FluentIcons.chevron_right_24_filled),
+                      onTap: () => _open(
+                        'https://github.com/jhelumcorp/gyawun/contributors',
+                      ),
+                    ),
+                    ExpressiveListTile(
+                      leading: const SettingsColorIcon(icon: Icons.send),
+                      title: const Text("Telegram"),
+                      trailing: const Icon(FluentIcons.chevron_right_24_filled),
+                      onTap: () => _open('https://t.me/jhelumcorp'),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 24),
+
+                ExpressiveListGroup(
+                  title: "Development",
+                  children: [
+                    ExpressiveListTile(
+                      leading: const SettingsColorIcon(icon: Icons.code),
+                      title: const Text("Source Code"),
+                      trailing: const Icon(FluentIcons.chevron_right_24_filled),
+                      onTap: () =>
+                          _open('https://github.com/jhelumcorp/gyawun'),
+                    ),
+                    ExpressiveListTile(
+                      leading: const SettingsColorIcon(icon: Icons.bug_report),
+                      title: const Text("Bug Report"),
+                      trailing: const Icon(FluentIcons.chevron_right_24_filled),
+                      onTap: () => _open(
+                        'https://github.com/sheikhhaziq/gyawun_music/issues/new?template=bug_report.yml',
+                      ),
+                    ),
+                    ExpressiveListTile(
+                      leading: const SettingsColorIcon(icon: Icons.description),
+                      title: const Text("Feature Request"),
+                      trailing: const Icon(FluentIcons.chevron_right_24_filled),
+                      onTap: () => _open(
+                        'https://github.com/sheikhhaziq/gyawun_music/discussions',
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),
