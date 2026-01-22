@@ -135,7 +135,6 @@ jobs:
             releases/gyawun-beta-v${{ steps.app_version.outputs.version }}-x86_64.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Notify Telegram
   notify-telegram:
     needs: beta-release
     uses: ./.github/workflows/notify-telegram.yml
