@@ -49,7 +49,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       # ─────────────────────────────────────────────
-      # 2. Detect channel + topic
+      # 2. Detect channel and topic
       # ─────────────────────────────────────────────
       - name: Detect channel and topic
         id: channel
@@ -106,46 +106,39 @@ jobs:
           echo "keyboard=$KEYBOARD" >> "$GITHUB_OUTPUT"
 
       # ─────────────────────────────────────────────
-      # 4. Send Telegram message
+      # 4. Send Telegram message (emoji-safe, jq-only)
       # ─────────────────────────────────────────────
       - name: Send Telegram message with buttons
         run: |
           set -e
 
-          TAG="${{ inputs.release_tag }}"
-          CHANNEL="${{ steps.channel.outputs.name }}"
-          EMOJI="${{ steps.channel.outputs.emoji }}"
-          NOTE="${{ steps.channel.outputs.note }}"
-          TOPIC_ID="${{ steps.channel.outputs.topic }}"
-          BODY="${{ steps.release.outputs.body }}"
-          KEYBOARD='${{ steps.keyboard.outputs.keyboard }}'
-
-          NOTES=$(echo "$BODY" | sed '/^\s*$/d' | head -n 5)
-
-          MESSAGE=$(cat <<EOF
-$EMOJI *GyawunMusic $CHANNEL Release*
-
-*Version:* $TAG
-$NOTE
-
-*Changes:*
-$NOTES
-
-🔗 https://github.com/${{ github.repository }}/releases/tag/$TAG
-EOF
-)
-
           jq -n \
             --arg chat "${{ secrets.TELEGRAM_CHAT_ID }}" \
-            --arg thread "$TOPIC_ID" \
-            --arg text "$MESSAGE" \
-            --argjson keyboard "$KEYBOARD" \
+            --arg thread "${{ steps.channel.outputs.topic }}" \
+            --arg tag "${{ inputs.release_tag }}" \
+            --arg channel "${{ steps.channel.outputs.name }}" \
+            --arg emoji "${{ steps.channel.outputs.emoji }}" \
+            --arg note "${{ steps.channel.outputs.note }}" \
+            --arg body "${{ steps.release.outputs.body }}" \
+            --argjson keyboard '${{ steps.keyboard.outputs.keyboard }}' \
             '{
               chat_id: ($chat | tonumber),
               message_thread_id: ($thread | tonumber),
-              text: $text,
               parse_mode: "Markdown",
-              reply_markup: { inline_keyboard: $keyboard }
+              text:
+                ($emoji + " *GyawunMusic " + $channel + " Release*\n\n"
+                + "*Version:* " + $tag + "\n"
+                + $note + "\n\n"
+                + "*Changes:*\n"
+                + ($body
+                    | split("\n")
+                    | map(select(length > 0))
+                    | .[:5]
+                    | join("\n"))
+                + "\n\n🔗 https://github.com/${{ github.repository }}/releases/tag/" + $tag),
+              reply_markup: {
+                inline_keyboard: $keyboard
+              }
             }' \
           | curl -s -X POST \
               -H "Content-Type: application/json" \
