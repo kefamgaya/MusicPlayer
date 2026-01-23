@@ -52,38 +52,92 @@ class DownloadManager {
     }
   }
 
-  void _refreshData() {
+  Future<void> _refreshData() async {
+    // Load downloads from Hive
     downloads.value = _box.values.toList().cast<Map>();
-    Map<String, Map> playlists = {};
-    for (Map song in downloads.value) {
-      final Map songPlaylists = song["playlists"];
-      for (MapEntry entry in songPlaylists.entries) {
-        String id = entry.key;
-        String title = entry.value["title"];
+
+    // -----------------------------
+    // 1) MIGRATE OLD DOWNLOADS
+    // -----------------------------
+    bool needsSave = false;
+
+    for (final song in downloads.value) {
+      if (song["playlists"] == null || song["playlists"] is! Map) {
+        song["playlists"] = {
+          songsPlaylistId: {
+            "id": songsPlaylistId,
+            "title": "Songs",
+            "timestamp":
+                song["downloadedAt"] ??
+                song["timestamp"] ??
+                DateTime.now().millisecondsSinceEpoch,
+          },
+        };
+        needsSave = true;
+      }
+    }
+
+    if (needsSave) {
+      await _box.clear();
+      await _box.addAll(downloads.value);
+    }
+
+    // -----------------------------
+    // 2) BUILD PLAYLIST MAP
+    // -----------------------------
+    final Map<String, Map<String, dynamic>> playlists = {};
+
+    for (final song in downloads.value) {
+      final Map songPlaylists = Map.from(song["playlists"] ?? {});
+
+      for (final entry in songPlaylists.entries) {
+        final String id = entry.key;
+        final value = entry.value;
+
+        if (value is! Map) continue;
+
+        final String title = value["title"] ?? "Unknown";
+
         playlists
             .putIfAbsent(
-                id,
-                () => {
-                      "id": id,
-                      "title": title,
-                      "type": id == songsPlaylistId ? "SONGS" : "ALBUM",
-                      "songs": [],
-                    })['songs']
-            .add({...song});
-        if (playlists[id]!['type'] == "ALBUM" &&
-            playlists[id]!['title'] != song["album"]?["name"]) {
-          playlists[id]!['type'] = "PLAYLIST";
+              id,
+              () => {
+                "id": id,
+                "title": title,
+                "type": id == songsPlaylistId ? "SONGS" : "ALBUM",
+                "songs": <Map<String, dynamic>>[],
+              },
+            )["songs"]
+            .add(Map<String, dynamic>.from(song));
+
+        // ALBUM → PLAYLIST detection (your existing logic, safe)
+        if (playlists[id]!["type"] == "ALBUM" &&
+            playlists[id]!["title"] != song["album"]?["name"]) {
+          playlists[id]!["type"] = "PLAYLIST";
         }
       }
     }
-    for (var playlist in playlists.values) {
-      playlist['songs'].sort((a, b) =>
-          (a["playlists"][playlist['id']]['timestamp'] ?? 0)
-                  .compareTo(b["playlists"][playlist['id']]['timestamp'] ?? 0)
-              as int);
+
+    // -----------------------------
+    // 3) SORT SONGS PER PLAYLIST
+    // -----------------------------
+    for (final playlist in playlists.values) {
+      final String playlistId = playlist["id"];
+
+      (playlist["songs"] as List).sort((a, b) {
+        final aTs = a["playlists"]?[playlistId]?["timestamp"] ?? 0;
+        final bTs = b["playlists"]?[playlistId]?["timestamp"] ?? 0;
+        return aTs.compareTo(bTs);
+      });
     }
-    if (!DeepCollectionEquality()
-        .equals(downloadsByPlaylist.value, playlists)) {
+
+    // -----------------------------
+    // 4) UPDATE STATE IF CHANGED
+    // -----------------------------
+    if (!const DeepCollectionEquality().equals(
+      downloadsByPlaylist.value,
+      playlists,
+    )) {
       downloadsByPlaylist.value = playlists;
     }
   }
@@ -118,7 +172,8 @@ class DownloadManager {
       if (_box.get(song['videoId']) != null) {
         final status = song['status'];
         final path = song['path'];
-        final isFileMissing = status == 'DOWNLOADED' &&
+        final isFileMissing =
+            status == 'DOWNLOADED' &&
             (path == null || !(await File(path).exists()));
         final isDeleted = status == 'DELETED';
         if (isDeleted || isFileMissing) {
@@ -132,22 +187,21 @@ class DownloadManager {
     // Added "songs" playlist if needed
     final Map song = {
       ...songToDownaload,
-      'playlists': songToDownaload['playlists'] ??
+      'playlists':
+          songToDownaload['playlists'] ??
           {
             songsPlaylistId: {
               'title': 'Songs',
-              'timestamp': DateTime.now().millisecondsSinceEpoch
-            }
-          }
+              'timestamp': DateTime.now().millisecondsSinceEpoch,
+            },
+          },
     };
     // Check downloaded songs
     final Map? downloadSong = _box.get(song['videoId']);
     if (downloadSong != null) {
       if (_activeDownloads.contains(song['videoId'])) {
         // Already downloading, just update metadata
-        await _updateSongMetadata(song['videoId'], {
-          ...song,
-        });
+        await _updateSongMetadata(song['videoId'], {...song});
         _downloadNext();
         return;
       } else {
@@ -186,15 +240,19 @@ class DownloadManager {
         throw Exception('Storage permissions not granted.');
       }
 
-      AudioOnlyStreamInfo audioSource = await _getSongInfo(song['videoId'],
-          quality:
-              GetIt.I<SettingsManager>().downloadQuality.name.toLowerCase());
+      AudioOnlyStreamInfo audioSource = await _getSongInfo(
+        song['videoId'],
+        quality: GetIt.I<SettingsManager>().downloadQuality.name.toLowerCase(),
+      );
 
       int total = audioSource.size.totalBytes;
       BytesBuilder received = BytesBuilder();
 
-      Stream<List<int>> stream =
-          AudioStreamClient().getAudioStream(audioSource, start: 0, end: total);
+      Stream<List<int>> stream = AudioStreamClient().getAudioStream(
+        audioSource,
+        start: 0,
+        end: total,
+      );
 
       await for (var data in stream) {
         received.add(data);
@@ -214,9 +272,7 @@ class DownloadManager {
       }
     } catch (e) {
       debugPrint("Error in _downloadSong: $e");
-      await _updateSongMetadata(song['videoId'], {
-        'status': 'DELETED',
-      });
+      await _updateSongMetadata(song['videoId'], {'status': 'DELETED'});
     } finally {
       _stopTrackingProgress(song['videoId']);
     }
@@ -238,10 +294,7 @@ class DownloadManager {
         song['playlists'] = mergedPlaylists;
         newMetadata.remove('playlists');
       }
-      await _box.put(key, {
-        ...song,
-        ...newMetadata,
-      });
+      await _box.put(key, {...song, ...newMetadata});
     } else {
       await _box.put(key, newMetadata);
     }
@@ -250,10 +303,7 @@ class DownloadManager {
   Future<bool> _downloadStart(Map song) async {
     if (_activeDownloads.length >= maxConcurrentDownloads) {
       _downloadQueue.add(song);
-      await _updateSongMetadata(song['videoId'], {
-        ...song,
-        'status': 'QUEUED',
-      });
+      await _updateSongMetadata(song['videoId'], {...song, 'status': 'QUEUED'});
       return false;
     }
     _activeDownloads.add(song['videoId']);
@@ -305,9 +355,10 @@ class DownloadManager {
     List songs = playlist['isPredefined'] == false
         ? playlist['songs']
         : playlist['type'] == 'ARTIST'
-            ? await GetIt.I<YTMusic>()
-                .getNextSongList(playlistId: playlist['playlistId'])
-            : await GetIt.I<YTMusic>().getPlaylistSongs(playlist['playlistId']);
+        ? await GetIt.I<YTMusic>().getNextSongList(
+            playlistId: playlist['playlistId'],
+          )
+        : await GetIt.I<YTMusic>().getPlaylistSongs(playlist['playlistId']);
     int timestamp = DateTime.now().millisecondsSinceEpoch;
     for (Map song in songs) {
       downloadSong({
@@ -322,12 +373,17 @@ class DownloadManager {
     }
   }
 
-  Future<AudioOnlyStreamInfo> _getSongInfo(String videoId,
-      {String quality = 'high'}) async {
+  Future<AudioOnlyStreamInfo> _getSongInfo(
+    String videoId, {
+    String quality = 'high',
+  }) async {
     try {
       StreamManifest manifest = await ytExplode.videos.streamsClient
-          .getManifest(videoId,
-              requireWatchPage: true, ytClients: [YoutubeApiClient.androidVr]);
+          .getManifest(
+            videoId,
+            requireWatchPage: true,
+            ytClients: [YoutubeApiClient.androidVr],
+          );
       List<AudioOnlyStreamInfo> streamInfos = manifest.audioOnly
           .where((a) => a.container == StreamContainer.mp4)
           .sortByBitrate()
