@@ -22,7 +22,8 @@ class ColorIcon extends StatelessWidget {
       padding: EdgeInsets.all(padding ?? 6),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(borderRadius ?? 8),
+        borderRadius: BorderRadius.zero,
+        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
       ),
       child: Icon(
         icon,
@@ -47,7 +48,7 @@ class SettingsColorIcon extends StatelessWidget {
       color:
           color ??
           Theme.of(context).colorScheme.primaryContainer.withAlpha(150),
-      borderRadius: 24,
+      borderRadius: 0,
       padding: 12,
       size: 24,
     );

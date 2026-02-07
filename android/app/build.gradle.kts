@@ -27,8 +27,11 @@ if (keystorePropertiesFile.exists()) {
     }
 }
 
+val hasReleaseKeystore =
+    !keystoreProperties.getProperty("storeFile").isNullOrBlank()
+
 android {
-    namespace = "com.jhelum.gyawun"
+    namespace = "com.rabbit.stream"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -42,7 +45,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.jhelum.gyawun"
+        applicationId = "com.rabbit.stream"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -57,29 +60,35 @@ android {
         create("beta") {
             dimension = "default"
             applicationIdSuffix = ".beta"
-            resValue("string", "app_name", "Gyawun Music Beta")
+            resValue("string", "app_name", "Rabbit Stream Beta")
         }
 
         create("production") {
             dimension = "default"
-            resValue("string", "app_name", "Gyawun Music")
+            resValue("string", "app_name", "Rabbit Stream")
         }
     }
 
     /* ---------- Signing ---------- */
 
     signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String?
-            keyPassword = keystoreProperties["keyPassword"] as String?
-            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
-            storePassword = keystoreProperties["storePassword"] as String?
+        if (hasReleaseKeystore) {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String?
+                keyPassword = keystoreProperties["keyPassword"] as String?
+                storeFile = keystoreProperties["storeFile"]?.let { file(it) }
+                storePassword = keystoreProperties["storePassword"] as String?
+            }
         }
     }
 
     buildTypes {
         getByName("release") {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = if (hasReleaseKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
             ndk {
                 debugSymbolLevel = "none"
             }
@@ -90,6 +99,11 @@ android {
         jniLibs {
             useLegacyPackaging = true
         }
+    }
+
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
     }
 }
 

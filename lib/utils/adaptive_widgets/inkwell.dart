@@ -41,7 +41,7 @@ class AdaptiveInkWell extends StatelessWidget {
           onLongPress: enabled ? onLongPress : null,
           onDoubleTap: enabled ? onDoubleTap : null,
           onSecondaryTap: enabled ? onSecondaryTap : null,
-          borderRadius: borderRadius ?? BorderRadius.circular(4),
+          borderRadius: borderRadius ?? BorderRadius.zero,
           splashFactory: (Platform.isWindows) ? const NoSplashFactory() : null,
           child: Padding(
             padding: padding ?? const EdgeInsets.all(0),

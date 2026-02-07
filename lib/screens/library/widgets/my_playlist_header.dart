@@ -24,7 +24,7 @@ class MyPlayistHeader extends StatelessWidget {
       {bool isRound = false, bool isDark = false}) {
     return (songs.isNotEmpty)
         ? ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.zero,
             child: SizedBox(
               height: 225,
               width: 225,
@@ -56,7 +56,7 @@ class MyPlayistHeader extends StatelessWidget {
             width: 200,
             decoration: BoxDecoration(
               color: greyColor,
-              borderRadius: BorderRadius.circular(3),
+              borderRadius: BorderRadius.zero,
             ),
             child: Icon(
               CupertinoIcons.music_note_list,
@@ -95,10 +95,7 @@ class MyPlayistHeader extends StatelessWidget {
                   },
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(Platform.isWindows ? 8 : 35),
-                  ),
+                  shape: const RoundedRectangleBorder(),
                   color: context.isDarkMode ? Colors.white : Colors.black,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -126,6 +123,10 @@ class MyPlayistHeader extends StatelessWidget {
     return SizedBox(
       width: double.maxFinite,
       child: Card(
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.12), width: 2),
+        ),
+        color: Colors.white.withValues(alpha: 0.05),
         child: LayoutBuilder(builder: (context, constraints) {
           return constraints.maxWidth > 600
               ? Row(

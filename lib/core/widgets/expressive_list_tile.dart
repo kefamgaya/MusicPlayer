@@ -29,29 +29,27 @@ class ExpressiveListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     // Check if we are inside an ExpressiveListGroup
     final isInGroup = ExpressiveListGroupScope.of(context) != null;
 
     // Determine default values based on context (Standalone vs Grouped)
-    final effectiveBorderRadius =
-        borderRadius ??
-        (isInGroup ? BorderRadius.zero : BorderRadius.circular(24));
+    final effectiveBorderRadius = borderRadius ?? BorderRadius.zero;
 
     final effectiveFillColor =
         fillColor ??
-        (isInGroup ? Colors.transparent : colorScheme.surfaceContainerHigh);
+        (isInGroup ? Colors.transparent : Colors.white.withValues(alpha: 0.05));
 
     // Colors
-    final selectedColor = colorScheme.secondaryContainer;
+    final selectedColor = primary.withValues(alpha: 0.2);
     final baseColor = selected ? selectedColor : effectiveFillColor;
 
     // Overlay colors for InkWell (M3 specs)
-    final hoverColor = colorScheme.onSurface.withValues(alpha: 0.08);
-    final highlightColor = colorScheme.onSurface.withValues(alpha: 0.12);
-    final splashColor = colorScheme.onSurface.withValues(alpha: 0.12);
+    final hoverColor = Colors.white.withValues(alpha: 0.05);
+    final highlightColor = Colors.white.withValues(alpha: 0.1);
+    final splashColor = Colors.white.withValues(alpha: 0.1);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -59,6 +57,12 @@ class ExpressiveListTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: baseColor,
         borderRadius: effectiveBorderRadius,
+        border: Border(
+          left: BorderSide(color: selected ? primary : primary.withValues(alpha: 0.45), width: 2),
+          top: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+          right: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+          bottom: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+        ),
       ),
       child: Material(
         type: MaterialType.transparency,
@@ -81,8 +85,8 @@ class ExpressiveListTile extends StatelessWidget {
                   IconTheme(
                     data: IconThemeData(
                       color: selected
-                          ? colorScheme.onSecondaryContainer
-                          : colorScheme.onSurfaceVariant,
+                          ? Colors.white
+                          : Colors.white.withValues(alpha: 0.8),
                       size: 24,
                     ),
                     child: leading!,
@@ -99,8 +103,8 @@ class ExpressiveListTile extends StatelessWidget {
                       DefaultTextStyle(
                         style: theme.textTheme.bodyLarge!.copyWith(
                           color: selected
-                              ? colorScheme.onSecondaryContainer
-                              : colorScheme.onSurface,
+                              ? Colors.white
+                              : Colors.white,
                           fontWeight: FontWeight.w600,
                         ),
                         child: title,
@@ -110,10 +114,8 @@ class ExpressiveListTile extends StatelessWidget {
                         DefaultTextStyle(
                           style: theme.textTheme.bodyMedium!.copyWith(
                             color: selected
-                                ? colorScheme.onSecondaryContainer.withValues(
-                                    alpha: 0.8,
-                                  )
-                                : colorScheme.onSurfaceVariant,
+                                ? primary
+                                : Colors.white.withValues(alpha: 0.6),
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
@@ -131,7 +133,7 @@ class ExpressiveListTile extends StatelessWidget {
                   const SizedBox(width: 16),
                   IconTheme(
                     data: IconThemeData(
-                      color: colorScheme.onSurfaceVariant,
+                      color: primary,
                       size: 24,
                     ),
                     child: trailing!,

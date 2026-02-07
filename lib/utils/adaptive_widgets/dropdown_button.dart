@@ -20,7 +20,7 @@ class AdaptiveDropdownButton<T> extends StatelessWidget {
       underline: const SizedBox(),
       value: value,
       isDense: true,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.zero,
       alignment: AlignmentDirectional.centerEnd,
       items: items
           ?.map(

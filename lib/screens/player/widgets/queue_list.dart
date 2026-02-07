@@ -13,6 +13,7 @@ class QueueList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     final mediaPlayer = GetIt.I<MediaPlayer>();
     final player = mediaPlayer.player;
 
@@ -24,7 +25,8 @@ class QueueList extends StatelessWidget {
 
         return Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor.withAlpha(70),
+            color: const Color(0xFF0A0A0A).withValues(alpha: 0.9),
+            border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.12), width: 2)),
           ),
           child: ClipRRect(
             child: BackdropFilter(
@@ -61,20 +63,21 @@ class QueueList extends StatelessWidget {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                TextButton.icon(
-                                  style: ButtonStyle(
-                                    backgroundColor: WidgetStatePropertyAll(
-                                      shuffle
-                                          ? Colors.white
-                                          : Colors.white.withAlpha(50),
-                                    ),
-                                    foregroundColor: WidgetStatePropertyAll(
-                                      shuffle
-                                          ? Theme.of(context)
-                                              .scaffoldBackgroundColor
-                                          : Colors.white,
-                                    ),
-                                  ),
+                                 TextButton.icon(
+                                   style: ButtonStyle(
+                                     backgroundColor: WidgetStatePropertyAll(
+                                       shuffle
+                                           ? primary
+                                           : Colors.white.withValues(alpha: 0.08),
+                                     ),
+                                     foregroundColor: WidgetStatePropertyAll(
+                                       shuffle
+                                           ? Colors.black
+                                           : Colors.white,
+                                     ),
+                                     shape: const WidgetStatePropertyAll(RoundedRectangleBorder()),
+                                     side: WidgetStatePropertyAll(BorderSide(color: Colors.white.withValues(alpha: 0.2), width: 2)),
+                                   ),
                                   onPressed: () {
                                     player.setShuffleModeEnabled(!shuffle);
                                   },
@@ -125,6 +128,10 @@ class QueueTile extends StatelessWidget {
       },
       child: ListTile(
         key: Key(index.toString()),
+        tileColor: Colors.white.withValues(alpha: 0.05),
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+        ),
         title: Text(song.title, maxLines: 1),
         leading: ArtworkWidget(song: song, isCurrent: isCurrent),
         subtitle: Text(
@@ -155,7 +162,7 @@ class ArtworkWidget extends StatelessWidget {
     final double dp = MediaQuery.of(context).devicePixelRatio;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.zero,
       child: Stack(
         children: [
           SongThumbnail(

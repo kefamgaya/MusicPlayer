@@ -10,6 +10,7 @@ class LibraryTile extends StatelessWidget {
     this.onLongPress,
     super.key,
   });
+
   final Widget? title;
   final Widget? leading;
   final Widget? subtitle;
@@ -19,20 +20,28 @@ class LibraryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
+
     return Material(
-      color: Theme.of(context).colorScheme.surfaceContainer,
-      borderRadius: BorderRadius.circular(20),
+      color: Colors.white.withValues(alpha: 0.05),
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
         onTap: onTap,
         onLongPress: onLongPress,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(color: primary.withValues(alpha: 0.5), width: 2),
+              top: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+              right: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+              bottom: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
             children: [
               if (leading != null) ...[
                 leading!,
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
               ],
               Expanded(
                 child: Column(
@@ -41,15 +50,18 @@ class LibraryTile extends StatelessWidget {
                   children: [
                     if (title != null)
                       DefaultTextStyle(
-                        style: Theme.of(context).textTheme.bodyLarge!,
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
                         child: title!,
                       ),
                     if (subtitle != null) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       DefaultTextStyle(
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          color: Theme.of(context).textTheme.bodySmall!.color,
-                        ),
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                              color: Colors.white.withValues(alpha: 0.62),
+                              fontWeight: FontWeight.w600,
+                            ),
                         child: subtitle!,
                       ),
                     ],
@@ -57,7 +69,7 @@ class LibraryTile extends StatelessWidget {
                 ),
               ),
               if (trailing != null) ...[
-                const SizedBox(width: 16),
+                const SizedBox(width: 10),
                 trailing!,
               ],
             ],

@@ -38,6 +38,7 @@ class _PlayPauseButtonState extends State<PlayPauseButton>
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     return GestureDetector(
       onTap: () {
         GetIt.I<MediaPlayer>().player.playing
@@ -59,10 +60,8 @@ class _PlayPauseButtonState extends State<PlayPauseButton>
             width: 60,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: (context.isDarkMode ? Colors.white : Colors.black)
-                  .withAlpha(50),
-              borderRadius: BorderRadius.circular(
-                  buttonState == ButtonState.playing ? 15 : 40),
+              color: primary.withValues(alpha: 0.18),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 2),
             ),
             child: (buttonState == ButtonState.loading)
                 ? const ExpressiveLoadingIndicator()

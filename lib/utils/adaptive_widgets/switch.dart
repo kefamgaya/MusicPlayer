@@ -7,6 +7,18 @@ class AdaptiveSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Switch(value: value, onChanged: onChanged);
+    return const _ThemedSwitch().build(value, onChanged);
+  }
+}
+
+class _ThemedSwitch {
+  const _ThemedSwitch();
+
+  Widget build(bool value, ValueChanged<bool>? onChanged) {
+    return Switch(
+      value: value,
+      activeColor: const Color(0xFF10B981),
+      onChanged: onChanged,
+    );
   }
 }

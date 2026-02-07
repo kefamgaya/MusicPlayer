@@ -17,9 +17,16 @@ class ExpressiveAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     return SliverAppBar(
       pinned: true,
       expandedHeight: 120,
+      backgroundColor: const Color(0xFF0A0A0A),
+      surfaceTintColor: Colors.transparent,
+      foregroundColor: Colors.white,
+      shape: Border(
+        bottom: BorderSide(color: Colors.white.withValues(alpha: 0.12), width: 2),
+      ),
       actions: actions,
       flexibleSpace: hasLeading
           ? LayoutBuilder(
@@ -60,6 +67,7 @@ class _ExpressiveFlexSpaceBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     return FlexibleSpaceBar(
       titlePadding: EdgeInsets.only(left: paddingLeft, bottom: 12),
       title:
@@ -70,7 +78,11 @@ class _ExpressiveFlexSpaceBar extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: Theme.of(
               context,
-            ).textTheme.headlineSmall?.copyWith(fontWeight: .w600),
+            ).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: primary,
+              fontStyle: FontStyle.italic,
+            ),
           ),
     );
   }

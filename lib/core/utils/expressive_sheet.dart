@@ -25,17 +25,15 @@ class ExpressiveSheet {
     required List<ExpressiveSheetOption<T>> options,
   }) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    const primary = Color(0xFF10B981);
 
     return showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       useRootNavigator: true,
-      backgroundColor: colorScheme.surfaceContainer,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
+      backgroundColor: const Color(0xFF0A0A0A),
+      shape: const RoundedRectangleBorder(),
       builder: (context) {
         return DraggableScrollableSheet(
           expand: false,
@@ -49,6 +47,7 @@ class ExpressiveSheet {
                   child: Text(
                     title,
                     style: theme.textTheme.headlineSmall,
+                    
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -59,7 +58,7 @@ class ExpressiveSheet {
                       title: Text(option.label),
                       leading: option.icon != null ? Icon(option.icon) : null,
                       trailing: option.selected
-                          ? Icon(FluentIcons.checkmark_24_filled)
+                          ? const Icon(FluentIcons.checkmark_24_filled, color: primary)
                           : null,
                       onTap: () {
                         Navigator.pop(context, option.value);
@@ -84,7 +83,7 @@ class ExpressiveSheet {
     VoidCallback? onReset,
   }) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    const primary = Color(0xFF10B981);
 
     // Preset M3-style colors
     final List<Color> presets = [
@@ -117,10 +116,8 @@ class ExpressiveSheet {
       isScrollControlled: false,
       showDragHandle: true,
       useRootNavigator: true,
-      backgroundColor: colorScheme.surfaceContainer,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
+      backgroundColor: const Color(0xFF0A0A0A),
+      shape: const RoundedRectangleBorder(),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
@@ -163,14 +160,13 @@ class ExpressiveSheet {
                           curve: Curves.easeOutCubic,
                           decoration: BoxDecoration(
                             color: color,
-                            shape: BoxShape.circle,
                             border: isSelected
                                 ? Border.all(
-                                    color: colorScheme.onSurface,
+                                    color: Colors.white,
                                     width: 2.5,
                                   )
                                 : Border.all(
-                                    color: colorScheme.outline.withOpacity(0.1),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     width: 1,
                                   ),
                             boxShadow: isSelected
@@ -213,10 +209,11 @@ class ExpressiveSheet {
                       const Spacer(),
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text("Cancel"),
-                      ),
+                          child: const Text("Cancel"),
+                        ),
                       const SizedBox(width: 12),
                       FilledButton(
+                        style: FilledButton.styleFrom(backgroundColor: primary, foregroundColor: Colors.black, shape: const RoundedRectangleBorder()),
                         onPressed: () => Navigator.pop(context, selectedColor),
                         child: const Text("Done"),
                       ),

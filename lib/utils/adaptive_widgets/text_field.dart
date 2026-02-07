@@ -35,12 +35,13 @@ class AdaptiveTextField extends StatelessWidget {
     this.readOnly = false,
     this.autofocus = false,
     this.maxLines = 1,
-    this.borderRadius = const BorderRadius.all(Radius.circular(4.0)),
+    this.borderRadius = BorderRadius.zero,
     this.borderWidth = 0,
   });
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     return TextField(
       key: key,
       controller: controller,
@@ -54,17 +55,23 @@ class AdaptiveTextField extends StatelessWidget {
       maxLines: maxLines,
       textInputAction: textInputAction,
       decoration: InputDecoration(
-        fillColor: fillColor,
-        filled: fillColor != null,
+        fillColor: fillColor ?? Colors.white.withValues(alpha: 0.05),
+        filled: true,
         contentPadding: contentPadding,
         hintText: hintText,
         prefixIcon: prefix,
         suffixIcon: suffix,
         border: OutlineInputBorder(
-          borderSide: borderWidth > 0
-              ? BorderSide(width: borderWidth)
-              : BorderSide.none,
-          borderRadius: borderRadius,
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2), width: borderWidth > 0 ? borderWidth : 2),
+          borderRadius: BorderRadius.zero,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2), width: 2),
+          borderRadius: BorderRadius.zero,
+        ),
+        focusedBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: primary, width: 2),
+          borderRadius: BorderRadius.zero,
         ),
       ),
     );

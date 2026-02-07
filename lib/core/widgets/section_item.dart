@@ -79,7 +79,12 @@ class _SectionItemState extends State<SectionItem> {
                 SectionRow(items: widget.section['contents']),
               if (loadingMore) const AdaptiveProgressRing(),
               if (widget.section['continuation'] != null && !loadingMore)
-                AdaptiveButton(
+                TextButton(
+                  style: TextButton.styleFrom(
+                    shape: const RoundedRectangleBorder(),
+                    side: BorderSide(color: Colors.white.withValues(alpha: 0.2), width: 2),
+                    foregroundColor: const Color(0xFF10B981),
+                  ),
                   onPressed: loadMoreItems,
                   child: const Text("Load More"),
                 ),
@@ -101,6 +106,7 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -110,14 +116,20 @@ class SectionHeader extends StatelessWidget {
             child: Text(
               title,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
+                color: primary,
                 fontWeight: FontWeight.w700,
                 fontSize: 18,
+                fontStyle: FontStyle.italic,
               ),
             ),
           ),
           if (trailing != null)
             TextButton.icon(
+              style: TextButton.styleFrom(
+                shape: const RoundedRectangleBorder(),
+                side: BorderSide(color: Colors.white.withValues(alpha: 0.2), width: 2),
+                foregroundColor: primary,
+              ),
               iconAlignment: IconAlignment.end,
               label: Text(trailing!['text']),
               icon: const Icon(FluentIcons.play_24_filled),

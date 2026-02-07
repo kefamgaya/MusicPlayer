@@ -12,6 +12,7 @@ class SectionRowTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     final pixelRatio = MediaQuery.devicePixelRatioOf(context);
     final imageHeight = 150;
     final isHorizontal =
@@ -25,7 +26,6 @@ class SectionRowTile extends StatelessWidget {
       shadowColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(8),
         enableFeedback: true,
         onTap: () async {
           if (item['endpoint'] != null && item['videoId'] == null) {
@@ -61,11 +61,8 @@ class SectionRowTile extends StatelessWidget {
                     height: imageHeight.toDouble(),
                     width: imageWidth.toDouble(),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                        (item['type'] == 'ARTIST')
-                            ? (imageWidth * pixelRatio)
-                            : 8,
-                      ),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 2),
+                      borderRadius: BorderRadius.zero,
                       image: DecorationImage(
                         image: CachedNetworkImageProvider(
                           thumbnail,
@@ -82,6 +79,7 @@ class SectionRowTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.w700,
+                      color: primary,
                     ),
                   ),
                   if (item['subtitle'] != null && item['subtitle']!.isNotEmpty)

@@ -22,6 +22,7 @@ class SectionListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     final pixelRatio = MediaQuery.devicePixelRatioOf(context);
     final thumbnail = item['thumbnails'][0];
 
@@ -45,14 +46,9 @@ class SectionListTile extends StatelessWidget {
         },
         enableFeedback: true,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadiusGeometry.only(
-            topLeft: Radius.circular(isFirst ? 20 : 4),
-            topRight: Radius.circular(isFirst ? 20 : 4),
-            bottomLeft: Radius.circular(isLast ? 20 : 4),
-            bottomRight: Radius.circular(isLast ? 20 : 4),
-          ),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
         ),
-        tileColor: Theme.of(context).colorScheme.surfaceContainer,
+        tileColor: Colors.white.withValues(alpha: 0.05),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         leading: thumbnail?['url'] == null
             ? null
@@ -61,11 +57,7 @@ class SectionListTile extends StatelessWidget {
                 height: 50,
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(
-                      item['type'] == 'ARTIST'
-                          ? ((50 * pixelRatio).round() / 2)
-                          : 8,
-                    ),
+                    borderRadius: BorderRadius.zero,
                     image: DecorationImage(
                       image: CachedNetworkImageProvider(
                         thumbnail!['url'],
@@ -100,7 +92,7 @@ class SectionListTile extends StatelessWidget {
               Modals.showSongBottomModal(context, item);
             }
           },
-          icon: const Icon(Icons.more_vert_rounded),
+          icon: Icon(Icons.more_vert_rounded, color: primary),
         ),
       ),
     );

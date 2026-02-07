@@ -45,6 +45,7 @@ class AdaptiveListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     final ThemeData theme = Theme.of(context);
     final TextStyle titleStyle = mediumTextStyle(context, bold: false).copyWith(
       fontSize: dense ? 14.0 : 16.0,
@@ -67,17 +68,19 @@ class AdaptiveListTile extends StatelessWidget {
           onLongPress: enabled ? onLongPress : null,
           onDoubleTap: enabled ? onDoubleTap : null,
           onSecondaryTap: enabled ? onSecondaryTap : null,
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.zero,
           splashFactory: (Platform.isWindows) ? const NoSplashFactory() : null,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: Container(
+          child: Container(
               padding: contentPadding ??
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
               decoration: BoxDecoration(
-                color: selected
-                    ? theme.colorScheme.primary.withValues(alpha:0.1)
-                    : backgroundColor,
+                color: selected ? primary.withValues(alpha: 0.15) : (backgroundColor ?? Colors.white.withValues(alpha: 0.05)),
+                border: Border(
+                  left: BorderSide(color: selected ? primary : primary.withValues(alpha: 0.45), width: 2),
+                  top: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+                  right: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+                  bottom: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+                ),
               ),
               child: Column(
                 children: [
@@ -132,7 +135,6 @@ class AdaptiveListTile extends StatelessWidget {
                 ],
               ),
             ),
-          ),
         ),
       ),
     );

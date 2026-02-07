@@ -57,12 +57,12 @@ class _PlaylistThumbnailState extends State<PlaylistThumbnail> {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(widget.radius),
+      borderRadius: BorderRadius.zero,
       child: SizedBox(
         height: widget.size,
         width: widget.size,
         child: ClipRRect(
-          borderRadius: .circular(8),
+          borderRadius: BorderRadius.zero,
           child: StaggeredGrid.count(
             crossAxisCount: _itemsToDisplay.length > 1 ? 2 : 1,
             children: _itemsToDisplay.indexed.map((ind) {

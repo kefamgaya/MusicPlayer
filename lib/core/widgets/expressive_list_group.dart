@@ -26,20 +26,20 @@ class ExpressiveListGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final backgroundColor = colorScheme.surfaceContainerHigh;
-    final borderRadius = BorderRadius.circular(24);
+    const primary = Color(0xFF10B981);
+    final backgroundColor = Colors.white.withValues(alpha: 0.05);
 
     Widget? headerWidget = header;
 
     if (headerWidget == null && title != null) {
       headerWidget = Padding(
-        padding: const EdgeInsets.only(left: 16, bottom: 8, top: 8),
+        padding: const EdgeInsets.only(left: 4, bottom: 8, top: 8),
         child: Text(
           title!,
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            color: colorScheme.primary,
-            fontWeight: FontWeight.bold,
+            color: primary,
+            fontWeight: FontWeight.w700,
+            fontStyle: FontStyle.italic,
           ),
         ),
       );
@@ -54,8 +54,13 @@ class ExpressiveListGroup extends StatelessWidget {
         ExpressiveListGroupScope(
           child: Container(
             decoration: BoxDecoration(
-              color: backgroundColor.withValues(alpha: 0.5),
-              borderRadius: borderRadius,
+              color: backgroundColor,
+              border: Border(
+                left: BorderSide(color: primary.withValues(alpha: 0.6), width: 2),
+                top: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+                right: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+                bottom: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+              ),
             ),
             clipBehavior: Clip.hardEdge,
             child: Column(children: _buildChildrenWithDividers(context)),
@@ -67,7 +72,6 @@ class ExpressiveListGroup extends StatelessWidget {
 
   List<Widget> _buildChildrenWithDividers(BuildContext context) {
     final List<Widget> items = [];
-    final colorScheme = Theme.of(context).colorScheme;
 
     for (int i = 0; i < children.length; i++) {
       items.add(children[i]);
@@ -80,7 +84,7 @@ class ExpressiveListGroup extends StatelessWidget {
             thickness: 1,
             indent: 76,
             endIndent: 16,
-            color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+            color: Colors.white.withValues(alpha: 0.1),
           ),
         );
       }

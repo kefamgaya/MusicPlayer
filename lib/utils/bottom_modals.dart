@@ -564,9 +564,7 @@ BottomModalLayout _addToPlaylist(BuildContext context, Map item) {
                       title: Text(playlist['title']),
                       leading: playlist['isPredefined'] == true
                           ? ClipRRect(
-                              borderRadius: BorderRadius.circular(
-                                playlist['type'] == 'ARTIST' ? 50 : 3,
-                              ),
+                              borderRadius: BorderRadius.zero,
                               child: CachedNetworkImage(
                                 imageUrl: playlist['thumbnails'].first['url']
                                     .replaceAll('w540-h225', 'w60-h60'),
@@ -585,7 +583,7 @@ BottomModalLayout _addToPlaylist(BuildContext context, Map item) {
                               width: 50,
                               decoration: BoxDecoration(
                                 color: greyColor,
-                                borderRadius: BorderRadius.circular(3),
+                                borderRadius: BorderRadius.zero,
                               ),
                               child: Icon(
                                 CupertinoIcons.music_note_list,
@@ -866,7 +864,7 @@ BottomModalLayout _playerOptionsModal(BuildContext context, Map song) {
                 context: context,
                 initialTime: const Duration(minutes: 30),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.zero,
                   color: AdaptiveTheme.of(context).inactiveBackgroundColor,
                 ),
               ).then((duration) {
@@ -943,7 +941,7 @@ BottomModalLayout _songBottomModal(BuildContext context, Map song) {
       contentPadding: EdgeInsets.zero,
       title: Text(song['title'], maxLines: 1, overflow: TextOverflow.ellipsis),
       leading: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.zero,
         child: CachedNetworkImage(
           imageUrl: song['thumbnails'].first['url'],
           height: 50,
@@ -1094,9 +1092,7 @@ BottomModalLayout _playlistBottomModal(BuildContext context, Map playlist) {
           playlist['isPredefined'] != false ||
               (playlist['songs'] != null && playlist['songs']?.length > 0)
           ? ClipRRect(
-              borderRadius: BorderRadius.circular(
-                playlist['type'] == 'ARTIST' ? 50 : 10,
-              ),
+              borderRadius: BorderRadius.zero,
               child: CachedNetworkImage(
                 imageUrl: playlist['thumbnails']?.isNotEmpty == true
                     ? playlist['thumbnails'].first['url']
@@ -1115,9 +1111,7 @@ BottomModalLayout _playlistBottomModal(BuildContext context, Map playlist) {
               width: 50,
               decoration: BoxDecoration(
                 color: greyColor,
-                borderRadius: BorderRadius.circular(
-                  playlist['type'] == 'ARTIST' ? 50 : 10,
-                ),
+                borderRadius: BorderRadius.zero,
               ),
               child: Icon(
                 CupertinoIcons.music_note_list,
@@ -1311,7 +1305,7 @@ BottomModalLayout _downloadBottomModal(BuildContext context) {
         width: 50,
         decoration: BoxDecoration(
           color: greyColor,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.zero,
         ),
         child: Icon(
           AdaptiveIcons.download,
@@ -1412,7 +1406,7 @@ BottomModalLayout _downloadDetailsBottomModal(
               width: 50,
               decoration: BoxDecoration(
                 color: greyColor,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.zero,
               ),
               child: Icon(
                 CupertinoIcons.music_note_list,
@@ -1552,29 +1546,30 @@ class BottomModalLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     return Container(
       width: double.maxFinite,
       constraints: const BoxConstraints(maxWidth: 600),
       child: Material(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-          bottomLeft: Radius.circular(0),
-          bottomRight: Radius.circular(0),
+        color: const Color(0xFF0A0A0A),
+        shape: Border(
+          left: BorderSide(color: Colors.white.withValues(alpha: 0.15), width: 2),
+          top: BorderSide(color: Colors.white.withValues(alpha: 0.15), width: 2),
+          right: BorderSide(color: Colors.white.withValues(alpha: 0.15), width: 2),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
           child: SafeArea(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (title != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 0,
+                  Container(
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      border: Border(left: BorderSide(color: primary, width: 4)),
                     ),
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                     child: title!,
                   ),
                 child,

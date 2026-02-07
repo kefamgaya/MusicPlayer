@@ -22,11 +22,11 @@ class Adaptivecard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: margin ?? const EdgeInsets.all(1),
-      color: backgroundColor,
-      elevation: elevation,
+      color: backgroundColor ?? Colors.white.withValues(alpha: 0.05),
+      elevation: elevation ?? 0,
       shape: RoundedRectangleBorder(
-          borderRadius:
-              borderRadius ?? const BorderRadius.all(Radius.circular(8.0))),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.12), width: 2),
+          borderRadius: borderRadius ?? BorderRadius.zero),
       child: Padding(
         padding: padding ?? const EdgeInsets.all(12.0),
         child: child,

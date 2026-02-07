@@ -14,6 +14,7 @@ class SongTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     List thumbnails = song['thumbnails'];
     double height =
         (song['aspectRatio'] != null ? 50 / song['aspectRatio'] : 50)
@@ -39,7 +40,7 @@ class SongTile extends StatelessWidget {
         ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
       ),
       leading: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.zero,
         child: CachedNetworkImage(
           imageUrl: thumbnails
               .where((el) => el['width'] >= 50)
@@ -79,13 +80,18 @@ class SongTile extends StatelessWidget {
       ),
       trailing: song['videoId'] == null
           ? null
-          : IconButton.filledTonal(
+          : IconButton(
+              style: IconButton.styleFrom(
+                shape: const RoundedRectangleBorder(),
+                side: BorderSide(color: Colors.white.withValues(alpha: 0.2), width: 2),
+                backgroundColor: Colors.white.withValues(alpha: 0.05),
+              ),
               onPressed: () {
                 if (song['videoId'] != null) {
                   Modals.showSongBottomModal(context, song);
                 }
               },
-              icon: Icon(FluentIcons.more_vertical_24_filled),
+              icon: const Icon(FluentIcons.more_vertical_24_filled, color: primary),
             ),
     );
   }

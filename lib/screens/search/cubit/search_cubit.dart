@@ -41,11 +41,11 @@ class SearchCubit extends Cubit<SearchState> {
     try {
       final feed = await _ytmusic.search('',
           endpoint: endpoint, additionalParams: current.continuation!);
-      SearchSuccess(
+      emit(SearchSuccess(
         sections: [...current.sections, ...feed['sections']],
         continuation: feed['continuation'],
         loadingMore: false,
-      );
+      ));
     } catch (e, st) {
       emit(SearchError(e.toString(), st.toString()));
     }

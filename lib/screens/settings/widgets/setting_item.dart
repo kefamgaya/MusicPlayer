@@ -6,13 +6,14 @@ class GroupTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     return Padding(
       padding: const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 8),
       child: Text(
         title,
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
+              color: primary,
             ),
       ),
     );
@@ -33,26 +34,20 @@ class SettingEmptyTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     return ListTile(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(isFirst ? 20 : 4),
-          topRight: Radius.circular(isFirst ? 20 : 4),
-          bottomLeft: Radius.circular(isLast ? 20 : 4),
-          bottomRight: Radius.circular(isLast ? 20 : 4),
-        ),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.12), width: 2),
       ),
-      tileColor: Theme.of(context).colorScheme.surfaceContainer,
+      tileColor: Colors.white.withValues(alpha: 0.05),
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       leading: leading == null
           ? null
           : Container(
               padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primaryContainer.withAlpha(150),
-                borderRadius: BorderRadius.circular(12),
+                color: primary.withValues(alpha: 0.2),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
               ),
               child: leading,
             ),
@@ -84,6 +79,7 @@ class SettingTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
       child: Material(
@@ -93,14 +89,9 @@ class SettingTile extends StatelessWidget {
         child: ListTile(
           onTap: onTap,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(isFirst ? 20 : 4),
-              topRight: Radius.circular(isFirst ? 20 : 4),
-              bottomLeft: Radius.circular(isLast ? 20 : 4),
-              bottomRight: Radius.circular(isLast ? 20 : 4),
-            ),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.12), width: 2),
           ),
-          tileColor: Theme.of(context).colorScheme.surfaceContainer,
+          tileColor: Colors.white.withValues(alpha: 0.05),
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           title: Text(
             title,
@@ -112,10 +103,8 @@ class SettingTile extends StatelessWidget {
           leading: Container(
             padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.primaryContainer.withAlpha(150),
-              borderRadius: BorderRadius.circular(12),
+              color: primary.withValues(alpha: 0.2),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
             ),
             child: leading,
           ),
@@ -156,20 +145,17 @@ class SettingSwitchTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     return Padding(
       padding: const EdgeInsets.only(bottom: 1),
       child: SwitchListTile(
         value: value,
         onChanged: onChanged,
+        activeColor: primary,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(isFirst ? 20 : 4),
-            topRight: Radius.circular(isFirst ? 20 : 4),
-            bottomLeft: Radius.circular(isLast ? 20 : 4),
-            bottomRight: Radius.circular(isLast ? 20 : 4),
-          ),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.12), width: 2),
         ),
-        tileColor: Theme.of(context).colorScheme.surfaceContainer,
+        tileColor: Colors.white.withValues(alpha: 0.05),
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         title: Text(
           title,
@@ -184,10 +170,8 @@ class SettingSwitchTile extends StatelessWidget {
         secondary: Container(
           padding: EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.primaryContainer.withAlpha(150),
-            borderRadius: BorderRadius.circular(12),
+            color: primary.withValues(alpha: 0.2),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
           ),
           child: leading,
         ),

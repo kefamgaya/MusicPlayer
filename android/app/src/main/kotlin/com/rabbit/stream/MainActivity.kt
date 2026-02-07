@@ -1,4 +1,4 @@
-package com.jhelum.gyawun
+package com.rabbit.stream
 
 import io.flutter.embedding.android.FlutterActivity
 

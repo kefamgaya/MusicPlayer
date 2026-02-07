@@ -11,9 +11,15 @@ class AdaptiveButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     return TextButton(
       key: key,
       onPressed: onPressed,
+      style: TextButton.styleFrom(
+        shape: const RoundedRectangleBorder(),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.2), width: 2),
+        foregroundColor: primary,
+      ),
       child: child,
     );
   }
@@ -36,13 +42,15 @@ class AdaptiveFilledButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     return FilledButton(
       key: key,
       onPressed: onPressed,
       style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all(color),
-        shape: WidgetStateProperty.all(shape),
+        backgroundColor: WidgetStateProperty.all(color ?? primary),
+        shape: WidgetStateProperty.all(shape ?? const RoundedRectangleBorder()),
         padding: WidgetStateProperty.all(padding),
+        foregroundColor: WidgetStateProperty.all(Colors.black),
       ),
       child: child,
     );
@@ -58,14 +66,18 @@ class AdaptiveOutlinedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     return OutlinedButton(
       key: key,
       onPressed: onPressed,
       style: ButtonStyle(
           backgroundColor:
               color != null ? WidgetStateProperty.all(color) : null,
-          foregroundColor:
-              WidgetStateProperty.all(Theme.of(context).colorScheme.primary)),
+          foregroundColor: WidgetStateProperty.all(primary),
+          shape: WidgetStateProperty.all(const RoundedRectangleBorder()),
+          side: WidgetStateProperty.all(
+            BorderSide(color: Colors.white.withValues(alpha: 0.2), width: 2),
+          )),
       child: child,
     );
   }
@@ -86,12 +98,18 @@ class AdaptiveIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     return IconButton(
       key: key,
       icon: icon,
       onPressed: onPressed,
       isSelected: isSelected,
-      color: color,
+      color: color ?? primary,
+      style: IconButton.styleFrom(
+        shape: const RoundedRectangleBorder(),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.2), width: 2),
+        backgroundColor: Colors.white.withValues(alpha: 0.05),
+      ),
     );
   }
 }

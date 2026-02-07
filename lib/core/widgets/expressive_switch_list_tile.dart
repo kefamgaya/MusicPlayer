@@ -25,6 +25,7 @@ class ExpressiveSwitchListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primary = Color(0xFF10B981);
     return ExpressiveListTile(
       title: title,
       subtitle: subtitle,
@@ -33,7 +34,7 @@ class ExpressiveSwitchListTile extends StatelessWidget {
       onLongPress: onLongPress,
       enableFeedback: enableFeedback,
       selected: selected,
-      trailing: Switch(value: value, onChanged: onChanged),
+      trailing: Switch(value: value, activeColor: primary, onChanged: onChanged),
     );
   }
 }

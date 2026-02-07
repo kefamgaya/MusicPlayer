@@ -21,7 +21,7 @@ class DownloadingSongTile extends StatelessWidget {
     return AdaptiveListTile(
       title: Text(song['title'] ?? "", maxLines: 1),
       leading: ClipRRect(
-        borderRadius: BorderRadius.circular(3),
+        borderRadius: BorderRadius.zero,
         child: CachedNetworkImage(
           imageUrl:
               thumbnails.where((el) => el['width'] >= 50).toList().first['url'],

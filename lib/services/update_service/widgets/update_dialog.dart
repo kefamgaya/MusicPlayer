@@ -11,8 +11,11 @@ class UpdateDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    const primary = Color(0xFF10B981);
 
     return AlertDialog(
+      backgroundColor: const Color(0xFF0A0A0A),
+      shape: const RoundedRectangleBorder(),
       title: const Text('Update Available'),
       content: ConstrainedBox(
         constraints: const BoxConstraints(maxHeight: 400),
@@ -36,8 +39,8 @@ class UpdateDialog extends StatelessWidget {
                   h2: theme.textTheme.titleMedium,
                   h3: theme.textTheme.titleSmall,
                   blockquoteDecoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.white.withValues(alpha: 0.06),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
                   ),
                 ),
                 onTapLink: (text, href, title) async {
@@ -57,10 +60,20 @@ class UpdateDialog extends StatelessWidget {
       ),
       actions: [
         TextButton(
+          style: TextButton.styleFrom(
+            shape: const RoundedRectangleBorder(),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.2), width: 2),
+            foregroundColor: primary,
+          ),
           onPressed: () => Navigator.pop(context),
           child: const Text('Later'),
         ),
         FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: primary,
+            foregroundColor: Colors.black,
+            shape: const RoundedRectangleBorder(),
+          ),
           onPressed: () async {
             final uri = Uri.parse(info.downloadUrl);
 
